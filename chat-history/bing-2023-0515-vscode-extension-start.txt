@@ -1,0 +1,42 @@
+With the info below, you should provide the flow and steps for me, to develop a prototype of a vscode extension named GPT-DevFlow.
+
+The main features of GPT-DevFlow are:
+[1] Interact with the website of Bing AI Chat in Edge and Chrome Browser, including send texts to the input text areas in Bing Chat, and receive responses from the Browser.
+[2] This extension is mainly focused on Programming, so it would have some features designed specific for coding generation and improvements.
+
+<br>
+
+GPT-DevFlow has two main components, Input-Processor and Output-Processor, whose features are numbered in brackets of alphabets:
+[1] Input Processor:
+  [a] Use the vscode native editor, which has all kinds of features for text editing;
+  [b] but also has a widget to quickly type predefined prompts templates for Browser Input text area.
+[2] Output Processor:
+  [a] Receive and format the responsed texts from Browser, which support markdown format highlight;
+  [b] Copy code blocks, or dump it to local files, or run it in a sandbox; 
+[3] Action Agent:
+  [a] Logger: Save Chat History to local files.
+  [b] Logger: Results and errors of running the code blocks from Output Processor.
+  [c] Version Control: Record and diff the original codes and improved lines.
+  [d] Act: Generate templated texts according to the  to Input Processor, which would be sent to Bing Chat after user provide some improvements.
+
+<br>
+
+With the info above, you should provide the flow and steps for me to develop a prototype of this extension.
+
+
+Could I develop GPT-DevFlow with Python? And I want to use JavaScript or TypeScript as less as possible.
+
+
+I have both `npm` and `pnpm` installed in my PC, which one should I use when develop this vscode extension?
+
+How to upgrade `npm` to latest version?
+
+What does this error mean: "npm WARN EBADENGINE Unsupported engine"
+
+When I run `npm -v`, this error appears:
+"npm WARN cli npm v9.6.6 does not support Node.js v16.6.1. This version of npm supports the following node versions: `^14.17.0 || ^16.13.0 || >=18.0.0`. You can find the latest version at https://nodejs.org/."
+
+Please fix it for me.
+
+
+What are the relationships among `nvm`, `node` and `npm`?
