@@ -1,0 +1,104 @@
+I want to develop a Python project named GPT-DevFlow, which uses Bing Chat to help programming. Provide three candidate software architectures for me.
+
+
+Please explain each architecture with a tree-view file structure.
+The content in triple backticks is an example output format for you. Note that the names of folders should be in brackets, and comments should start with "#".
+
+```
+[GPT-DevFlow]
+├── README.md
+├── requirements.txt
+├── setup.py
+├── [doc]              # [doc] contains documentations     
+│   ├── ...
+│   └── ...
+└── [src]              # [src] contains main source codes
+    ├── **.py
+    └── ****.py
+└── [tests]            # [tests] contain tests
+    ├── ***.py
+    └── ***.py
+└── LICENSE
+```
+
+
+Please analyze the project of vscode in GitHub (https://github.com/microsoft/vscode).
+Provide the following info, numbered in brackets:
+[1] Its software design architecture;
+[2] Its file structure, please comment (which starts with "#") after each parent folder;
+[3] How to use its structure for my GPT-DevFlow project.
+
+
+If I have specified a file structure, how could I auto-generate the files locally, without create them one-by-one mannually?
+It is better to suggest some tools and plugins for this kind of use.
+
+
+Let's go back and focus on my GPT-DevFlow python project.
+It integrate three environments:
+[1] Programming IDE (VSCode for me);
+[2] Bing Chat (opens in Edge browser);
+[3] Local files and running environments (windows and dockers).
+
+Then in which format should the GPT-DevFlow be designed, I already have several ideas below, please provide practical suggestions for each:
+[1] A VSCode extension;
+[2] An App running locally, which is developped by Electron or sth else;
+[3] A TamperMonkey user script;
+[4] A Chrome extension;
+[5] A Web based App, which is developped by Next.js or sth else.
+
+
+Let me provide some features that GPT-DevFlow should have:
+[1] Define and use prompt templates, so users could input prompts faster;
+[2] Save chat histories from Bing Chat, and export to markdown or json;
+[3] Iterative code generation and improvements;
+[4] Easy to run codes in local environments, and auto logging, collect errors and return to Bing Chat;
+[5] Version control with Git and GitHub.
+
+Based on your suggestions above, design a recommendations score system by yourself. 
+Re-analyze each candidate with the additional required features above, and then sort the candidates by the recommendations scores.
+
+Great! Let's discuss more on the 1st and 2nd design candidate above:
+[1] Provide development workflow for the 1st and 2nd candidate;
+[2] For each feature I mentioned previously, provide suggestions and implementations for the 1st and 2nd candidate;
+[3] Apart from the features capability above, also analyze the two candidate on: [a] Time cost of development; [b] Easiness of sharing and used by other developpers; [c] Scalability, which means easiness of iterating and maintaining the project in long term, and extending its functionabilities.
+
+
+Great! Now I decide to develop GPT-DevFlow as a vscode extention.
+Please re-organize our previous conversations, and provide the follwoing information:
+[1] Features of GPT-DevFlow;
+[2] Workflow of developping GPT-DevFlow;
+[3] Recommend tools and resources in developping GPT-DevFlow;
+[4] The Roadmap of development, which list the first steps in short-term, and future plans in long term.
+
+
+I have saved our conversations to a markdown file, and would like commit it to Git.
+Provide three candidates of git commit messages for me.
+
+Here is the markdown filename:
+"bing-2023-0515-gpt-devflow-architecture-and-tech-choices.md"
+Here is the commit message:
+"[Doc] GPT-DevFlow architectures and tech choices"
+
+Evaluate them, and provide suggestions and improvements.
+
+
+Improve the original GitHub description of this project, based on the features and designs above:
+"Streamline your development workflow with GPT"
+
+
+Make the description shorter, less than 16 words.
+
+
+Generate a GitHub "README.md" for GPT-DevFlow.
+Based on: [1] features;  [2] designs [3] workflow; [4] roadmap;
+If necessary, You could also add other parts.
+
+
+Polish the "README.md", in following aspects:
+[1] Make long sentences and paragraphs shorter;
+[2] Rephrase with numbered key points and (un)checked mark;
+[3] Focus more on the features, and add detailed description;
+[4] Remove the "Contributing" part.
+
+
+However, I would like to use Python as my programming language, could I do this?
