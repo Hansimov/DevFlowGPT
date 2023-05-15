@@ -2,9 +2,9 @@
 # https://github.com/microsoft/vscode-extension-samples/blob/main/.gitignore
 # https://github.com/microsoft/vscode-extension-samples/blob/main/helloworld-sample/.gitignore
 
-*/node_modules/
-*/out/
-*/.vs/
+node_modules
+out
+.vs
 .vscode-test
 
 *.db
