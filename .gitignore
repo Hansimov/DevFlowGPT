@@ -1,14 +1,11 @@
 # https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+# https://github.com/microsoft/vscode-extension-samples/blob/main/.gitignore
+# https://github.com/microsoft/vscode-extension-samples/blob/main/helloworld-sample/.gitignore
 
 */node_modules/
 */out/
-.vscode/*
+*/.vs/
+.vscode-test
 
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-!.vscode/*.code-snippets
-
-# Built Visual Studio Code Extensions
+*.db
 *.vsix

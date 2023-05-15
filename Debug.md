@@ -3,6 +3,8 @@
 * Your First Extension | Visual Studio Code Extension API
   * https://code.visualstudio.com/api/get-started/your-first-extension
 
+* vscode-extension-samples/helloworld-sample
+  * https://github.com/microsoft/vscode-extension-samples/tree/main/helloworld-sample
 
 ## Solutions to issues
 
