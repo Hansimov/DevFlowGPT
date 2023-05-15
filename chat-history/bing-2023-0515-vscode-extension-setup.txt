@@ -1,0 +1,4 @@
+What does this command do: `npm install -g yo generator-code`
+
+
+What does this output in npm console mean: "idealTree:npm: sill idealTree buildDeps"
