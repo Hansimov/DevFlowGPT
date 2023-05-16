@@ -10,16 +10,22 @@ export async function selectFile() {
         return;
     }
 
-    // Show a quick pick to let the user select a file
-    const files = await vscode.workspace.findFiles('**/*');
+    // Show a quick pick to let the user select multiple files
+    const files = await vscode.workspace.findFiles('**/*', '**/node_modules/**');
     const fileItems = files.map(file => ({ label: path.basename(file.path), file }));
-    const selectedFile = await vscode.window.showQuickPick(fileItems, { placeHolder: 'Select a file' });
+    const selectedFiles = await vscode.window.showQuickPick(fileItems, { placeHolder: 'Select files', canPickMany: true });
 
-    if (selectedFile) {
-        // Read the contents of the selected file
-        const fileContents = fs.readFileSync(selectedFile.file.fsPath, 'utf-8');
+    if (selectedFiles && selectedFiles.length > 0) {
+        // Read the contents of the selected files
+        let fileContents = '';
+        for (const selectedFile of selectedFiles) {
+            const filePath = selectedFile.file.fsPath;
+            const fileName = path.basename(filePath);
+            const content = fs.readFileSync(filePath, 'utf-8');
+            fileContents += `[${fileName}]:\n\`\`\`\n${content}\n\`\`\`\n\n`;
+        }
 
-        // Create a new untitled document with the contents of the selected file
+        // Create a new untitled document with the contents of the selected files
         const document = await vscode.workspace.openTextDocument({ content: fileContents });
 
         // Show the document in a new editor

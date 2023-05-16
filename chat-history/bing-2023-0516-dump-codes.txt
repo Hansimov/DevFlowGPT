@@ -158,3 +158,34 @@ If the changes are too long or the script is newly added, do not provide these c
 [3] Provide whole scripts, and specify the file paths and file names. An example is:
 `[src/extension.ts]`:
 ```...(Whole improved or added script here)...```
+
+
+In the file "fileSelector.ts", this line `vscode.workspace.workspaceFolders?.[0]` always give `undefined` return value, which shows error "No workspace folder is opened".
+
+Here is the context of this line:
+
+```
+export async function selectFile() {
+    // Get the current workspace folder
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    if (!workspaceFolder) {
+        vscode.window.showErrorMessage('No workspace folder is opened');
+        return;
+    }
+    ...   
+}
+```
+
+You should explain the reason of this error, and fix it.
+Let me remind you again, the expected features of "fileSelector" should be:
+[1] Provide a drop-down menu for the files in current folder;
+[2] Each file entry displayed in the drop-down menu has an (un)checked button before, which means (un)selected, and user can check or uncheck to change the files to be selected or unselected
+[3] Dump contents of all selected files to a new editor window or tab, which is created by the vscode extension;
+[4] The dumped content should follow the format: Begin with file paths and names which are in brackets and followed by a colon, and then followed by the codes included in triple backticks. Here is an example: 
+
+[src/example.ts]:
+```
+... (Contents in the example.ts) 
+```
+
+Please fix the error above, and then implement the features above based on your previous codes.
