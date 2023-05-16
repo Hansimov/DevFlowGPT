@@ -189,3 +189,103 @@ Let me remind you again, the expected features of "fileSelector" should be:
 ```
 
 Please fix the error above, and then implement the features above based on your previous codes.
+
+
+When I run a vscode extension, it shows this error:
+```
+rejected promise not handled within 1 second: Error: ENOENT: no such file or directory, open 'Untitled-1'
+```
+Please explain the reason of this error and fix it for me.
+
+
+
+Below TypeScript codes in triple backticks are the script which has the error above.
+You should fix the error mentioned above for this script.
+
+```
+import * as vscode from 'vscode';
+import { handleBrowserMessage } from './messageHandler';
+import { selectFile } from './fileSelector';
+
+export function activate(context: vscode.ExtensionContext) {
+    // Register the command to send a message from vscode to Chrome Browser
+    let disposable = vscode.commands.registerCommand('devflowgpt.sendMessage', async () => {
+        // Get the message to send from the user
+        const message = await vscode.window.showInputBox({ prompt: 'Enter the message to send' });
+		handleMessage(message);
+    });
+	context.subscriptions.push(disposable);
+	console.log("> Handling message ...");
+	
+
+    // Listen for messages from Chrome Browser
+    // TODO: Implement the logic to listen for messages from Chrome Browser and call handleMessage when a message is received
+
+    // Register the command to select a file from the folder opened by vscode editor
+    let selectFileDisposable = vscode.commands.registerCommand('devflowgpt.selectFile', async () => {
+        await selectFile();
+    });
+    context.subscriptions.push(selectFileDisposable);
+}
+
+// Handle incoming messages from Chrome Browser
+export function handleMessage(message: string | undefined) {
+    // TODO: Implement the logic to handle incoming messages from Chrome Browser
+	handleBrowserMessage(message);
+	console.log(`After handling ${message} ...`);
+}
+```
+
+
+Below is another script which might have the error mentioned before.
+Please locate the lines which cause this error, and fix it for me.
+
+```
+import * as fs from 'fs';
+import * as path from 'path';
+import * as vscode from 'vscode';
+
+export async function selectFile() {
+    // Get the current workspace folder
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    if (!workspaceFolder) {
+        vscode.window.showErrorMessage('No workspace folder is opened');
+        return;
+    }
+
+    // Show a quick pick to let the user select multiple files
+    const files = await vscode.workspace.findFiles('**/*', '**/node_modules/**');
+    const fileItems = files.map(file => ({ label: path.basename(file.path), file }));
+    const selectedFiles = await vscode.window.showQuickPick(fileItems, { placeHolder: 'Select files', canPickMany: true });
+
+    if (selectedFiles && selectedFiles.length > 0) {
+        // Read the contents of the selected files
+        let fileContents = '';
+        for (const selectedFile of selectedFiles) {
+            const filePath = selectedFile.file.fsPath;
+            const fileName = path.basename(filePath);
+            const content = fs.readFileSync(filePath, 'utf-8');
+            fileContents += `[${fileName}]:\n\`\`\`\n${content}\n\`\`\`\n\n`;
+        }
+
+        // Create a new untitled document with the contents of the selected files
+        const document = await vscode.workspace.openTextDocument({ content: fileContents });
+
+        // Show the document in a new editor
+        await vscode.window.showTextDocument(document);
+    }
+}
+```
+
+More details of this error are:
+```
+rejected promise not handled within 1 second: Error: ENOENT: no such file or directory, open 'Untitled-1'
+stack trace: Error: ENOENT: no such file or directory, open 'Untitled-1'
+    at Object.openSync (node:fs:594:3)
+    at Object.func [as openSync] (node:electron/js2c/asar_bundle:2:1822)
+    at c:\Users\userxxx\.vscode\extensions\buuug7.gbk2utf8-0.6.2\dist\extension.js:1:466313
+    at c:\Users\userxxx\.vscode\extensions\buuug7.gbk2utf8-0.6.2\dist\extension.js:1:466390
+```
+
+Please analyze the error log, and re-locate the root cause of this error.
+
