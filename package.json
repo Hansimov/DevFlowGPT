@@ -14,8 +14,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "gpt-devflow.helloWorld",
-        "title": "Hello World"
+        "command": "gpt-devflow.sendMessage",
+        "title": "Send Message to Chrome Browser"
       }
     ]
   },
