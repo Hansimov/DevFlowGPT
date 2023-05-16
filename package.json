@@ -15,7 +15,11 @@
     "commands": [
       {
         "command": "devflowgpt.sendMessage",
-        "title": "Send Message to Chrome Browser"
+        "title": "DevFlowGPT: Send Message to Chrome Browser"
+      },
+      {
+        "command": "devflowgpt.selectFile",
+        "title": "DevFlowGPT: Select Files to Dump"
       }
     ]
   },

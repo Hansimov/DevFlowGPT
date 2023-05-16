@@ -1,13 +1,6 @@
-// This is a TypeScript code snippet for the DevFlowGPT vscode extension
-// This extension supports sending and receiving messages between vscode and Chrome Browser
-
-// File structure:
-// - src
-//   - extension.ts
-//   - messageHandler.ts
-
 import * as vscode from 'vscode';
 import { handleBrowserMessage } from './messageHandler';
+import { selectFile } from './fileSelector';
 
 export function activate(context: vscode.ExtensionContext) {
     // Register the command to send a message from vscode to Chrome Browser
@@ -22,6 +15,12 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Listen for messages from Chrome Browser
     // TODO: Implement the logic to listen for messages from Chrome Browser and call handleMessage when a message is received
+
+    // Register the command to select a file from the folder opened by vscode editor
+    let selectFileDisposable = vscode.commands.registerCommand('devflowgpt.selectFile', async () => {
+        await selectFile();
+    });
+    context.subscriptions.push(selectFileDisposable);
 }
 
 // Handle incoming messages from Chrome Browser
