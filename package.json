@@ -1,6 +1,6 @@
 {
-  "name": "gpt-devflow",
-  "displayName": "GPT-DevFlow",
+  "name": "devflowgpt",
+  "displayName": "DevFlowGPT",
   "description": "Streamline development workflow with GPT",
   "version": "0.0.1",
   "engines": {
@@ -14,7 +14,7 @@
   "contributes": {
     "commands": [
       {
-        "command": "gpt-devflow.sendMessage",
+        "command": "devflowgpt.sendMessage",
         "title": "Send Message to Chrome Browser"
       }
     ]

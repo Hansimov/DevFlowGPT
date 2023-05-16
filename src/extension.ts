@@ -1,4 +1,4 @@
-// This is a TypeScript code snippet for the GPT-DevFlow vscode extension
+// This is a TypeScript code snippet for the DevFlowGPT vscode extension
 // This extension supports sending and receiving messages between vscode and Chrome Browser
 
 // File structure:
@@ -11,7 +11,7 @@ import { handleBrowserMessage } from './messageHandler';
 
 export function activate(context: vscode.ExtensionContext) {
     // Register the command to send a message from vscode to Chrome Browser
-    let disposable = vscode.commands.registerCommand('gpt-devflow.sendMessage', async () => {
+    let disposable = vscode.commands.registerCommand('devflowgpt.sendMessage', async () => {
         // Get the message to send from the user
         const message = await vscode.window.showInputBox({ prompt: 'Enter the message to send' });
 		handleMessage(message);
