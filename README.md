@@ -12,22 +12,8 @@ Boost productivity with DevFlowGPT: a VSCode extension integrating Bing Chat for
 
 ## Design
 
-DevFlowGPT is a VSCode extension that integrates with Bing Chat.
-It uses VSCode Extension API to provide powerful features for streamlining your development workflow.
 
 ## Workflow
 
-1. Install the DevFlowGPT extension from the VSCode Marketplace.
-2. Access its features through the command palette or custom commands/snippets.
-3. Define and use prompt templates to quickly insert prompts into Bing Chat.
-4. Save chat histories to local files in markdown or json format.
-5. Iteratively generate and improve code with code completion and refactoring.
-6. Run code in local environments and collect errors/logs. Return results to Bing Chat.
-7. Manage your code with Git and GitHub integration.
 
 ## Roadmap
-
-- [ ] Implement core features and publish extension to VSCode Marketplace.
-- [ ] Add new features, improve existing functionality, fix bugs, gather user feedback.
-- [ ] Explore integrating with other tools/services within the VSCode ecosystem.
-
