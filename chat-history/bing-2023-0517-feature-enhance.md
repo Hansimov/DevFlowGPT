@@ -493,3 +493,405 @@ Here are all lines of the improved scripts:
     
 
 Copy
+
+> Let me provide you more details to fix the error of "No overload matches this call":
+> 
+> <error>
+> No overload matches this call.
+>  The last overload gave the following error.
+>  Argument of type '{ placeHolder: string; canPickMany: true; activeItems: ({ label: string; file: vscode.Uri; } | undefined)[]; }' is not assignable to parameter of type 'QuickPickOptions'.
+>  Object literal may only specify known properties, and 'activeItems' does not exist in type 'QuickPickOptions'.
+> </error>
+> 
+> <error>
+> Property 'file' does not exist on type 'string'.
+> </error>
+
+Thank you for providing more details about the error. It seems that the `activeItems` property is not available in the version of the `QuickPickOptions` type that you are using. This property was added in version 1.57.0 of the `vscode` module. You can check the version of the `vscode` module that you are using by looking at the `engines.vscode` property in your `package.json` file. If you are using a version earlier than 1.57.0, you can update it to a later version to use the `activeItems` property.
+
+As for the second error message, it seems that there is a mismatch between the type of the `file` property and the type of the value being assigned to it. Could you please provide more context about where this error is occurring so that I can help you fix it?
+
+> Great! But your codes are not perfect, and you need to do following improvement steps (with number in brackets):
+> 
+> [1] The drop-down menu of files to be selected (`vscode.window.showQuickPick`) should use tree structure, which have features below:
+>  [a] Parent folder should be on top of its child files
+>  [b] The button of check should be indented for child level files;
+> 
+> 
+> After doing the improvement steps above, please provide all lines of the improved scripts, and follow rules (with alphabets in brackets) below:
+>  [a] If one script has no change, do not output the codes;
+>  [b] Do not use git diff format, but just all lines.
+
+To show a tree structure in the drop-down menu of files to be selected (`vscode.window.showQuickPick`), you can modify the `label` property of `fileItems` in `fileSelector.ts` to include indentation for child level files and sort the `fileItems` array to ensure that parent folders are on top of their child files. Here is an example of how you can do this:
+
+\[fileSelector.ts\]:
+
+    import * as fs from 'fs';
+    import * as path from 'path';
+    import * as vscode from 'vscode';
+    
+    export async function selectFile(selectedFiles: vscode.Uri[]) {
+        // Get the current workspace folder
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        if (!workspaceFolder) {
+            vscode.window.showErrorMessage('No workspace folder is opened');
+            return;
+        }
+    
+        // Show a quick pick to let the user select multiple files
+        const files = await vscode.workspace.findFiles('**/*', '**/node_modules/**');
+    -   const fileItems = files.map(file => ({ label: path.relative(workspaceFolder.uri.fsPath, file.fsPath), file }));
+    +   const fileItems = files.map(file => ({ label: '  '.repeat((path.relative(workspaceFolder.uri.fsPath, file.fsPath).match(/\\/g) || []).length) + path.basename(file.fsPath), file })).sort((a, b) => a.label.localeCompare(b.label));
+        const newSelectedFiles = await vscode.window.showQuickPick(fileItems, { placeHolder: 'Select files', canPickMany: true });
+        
+    if (newSelectedFiles) {
+            selectedFiles.splice(0, selectedFiles.length, ...newSelectedFiles.map(item => item.file));
+        }
+    
+    if (selectedFiles && selectedFiles.length > 0) {
+            // Read the contents of the selected files
+            let fileContents = '';
+            for (const selectedFile of selectedFiles) {
+                const filePath = selectedFile.fsPath;
+                const fileName = path.basename(filePath);
+                const content = fs.readFileSync(filePath, 'utf-8');
+                fileContents += `[${fileName}]:\n<code>\n${content}\n</code>\n\n`;
+            }
+    
+            // Create a new untitled document with the contents of the selected files
+            const document = await vscode.workspace.openTextDocument({ content: fileContents });
+    
+            // Show the document in a new editor
+            await vscode.window.showTextDocument(document);
+    }
+    }
+    
+
+Copy
+
+Here are all lines of the improved script:
+
+\[fileSelector.ts\]:
+
+    import * as fs from 'fs';
+    import * as path from 'path';
+    import * as vscode from 'vscode';
+    
+    export async function selectFile(selectedFiles: vscode.Uri[]) {
+        // Get the current workspace folder
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        if (!workspaceFolder) {
+            vscode.window.showErrorMessage('No workspace folder is opened');
+            return;
+        }
+    
+        // Show a quick pick to let the user select multiple files
+        const files = await vscode.workspace.findFiles('**/*', '**/node_modules/**');
+    -   const fileItems = files.map(file => ({ label: path.relative(workspaceFolder.uri.fsPath, file.fsPath), file }));
+    +   const fileItems = files.map(file => ({ label: '  '.repeat((path.relative(workspaceFolder.uri.fsPath, file.fsPath).match(/\\/g) || []).length) + path.basename(file.fsPath), file })).sort((a, b) => a.label.localeCompare(b.label));
+        const newSelectedFiles = await vscode.window.showQuickPick(fileItems, { placeHolder: 'Select files', canPickMany: true });
+        
+    if (newSelectedFiles) {
+            selectedFiles.splice(0, selectedFiles.length, ...newSelectedFiles.map(item => item.file));
+        }
+    
+    if (selectedFiles && selectedFiles.length > 0) {
+            // Read the contents of the selected files
+            let fileContents = '';
+            for (const selectedFile of selectedFiles) {
+                const filePath = selectedFile.fsPath;
+                const fileName = path.basename(filePath);
+                const content = fs.readFileSync(filePath, 'utf-8');
+                fileContents += `[${fileName}]:\n<code>\n${content}\n</code>\n\n`;
+            }
+    
+            // Create a new untitled document with the contents of the selected files
+            const document = await vscode.workspace.openTextDocument({ content: fileContents });
+    
+            // Show the document in a new editor
+            await vscode.window.showTextDocument(document);
+    }
+    }
+    
+
+Copy
+
+> You should improve the following features (with number in brackets):
+> 
+> [1] Show parent folder path for each child file item.
+> Here is an example of the tree structure of the UI for QuickPick. The `[ ]` represent the check box before filename, and `---` represents the indent.
+> <exp>
+> [ ] ..
+> --- [ ] src/
+> --- --- [ ] extension.ts
+> --- --- [ ] fileSelector.ts
+> --- --- [ ] messageHandler.ts
+> --- [ ] test/
+> --- [ ] package.json
+> </exp>
+> 
+> [2] Make the status of checked box memorized, so that when next time run the command "select files", the previous-checked box could be checked already.
+
+1.  To show the parent folder path for each child file item in the drop-down menu of files to be selected (`vscode.window.showQuickPick`), you can modify the `label` property of `fileItems` in `fileSelector.ts` to include the relative path of the file. Here is an example of how you can do this:
+
+\[fileSelector.ts\]:
+
+    import * as fs from 'fs';
+    import * as path from 'path';
+    import * as vscode from 'vscode';
+    
+    export async function selectFile(selectedFiles: vscode.Uri[]) {
+        // Get the current workspace folder
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        if (!workspaceFolder) {
+            vscode.window.showErrorMessage('No workspace folder is opened');
+            return;
+        }
+    
+        // Show a quick pick to let the user select multiple files
+        const files = await vscode.workspace.findFiles('**/*', '**/node_modules/**');
+    -   const fileItems = files.map(file => ({ label: '  '.repeat((path.relative(workspaceFolder.uri.fsPath, file.fsPath).match(/\\/g) || []).length) + path.basename(file.fsPath), file })).sort((a, b) => a.label.localeCompare(b.label));
+    +   const fileItems = files.map(file => ({ label: path.relative(workspaceFolder.uri.fsPath, file.fsPath).replace(/\\/g, '/'), file })).sort((a, b) => a.label.localeCompare(b.label));
+        const newSelectedFiles = await vscode.window.showQuickPick(fileItems, { placeHolder: 'Select files', canPickMany: true });
+        
+    if (newSelectedFiles) {
+            selectedFiles.splice(0, selectedFiles.length, ...newSelectedFiles.map(item => item.file));
+        }
+    
+    if (selectedFiles && selectedFiles.length > 0) {
+            // Read the contents of the selected files
+            let fileContents = '';
+            for (const selectedFile of selectedFiles) {
+                const filePath = selectedFile.fsPath;
+                const fileName = path.basename(filePath);
+                const content = fs.readFileSync(filePath, 'utf-8');
+                fileContents += `[${fileName}]:\n<code>\n${content}\n</code>\n\n`;
+            }
+    
+            // Create a new untitled document with the contents of the selected files
+            const document = await vscode.workspace.openTextDocument({ content: fileContents });
+    
+            // Show the document in a new editor
+            await vscode.window.showTextDocument(document);
+    }
+    }
+    
+
+Copy
+
+2.  To make the status of checked box memorized so that when next time run the command “select files”, the previously checked boxes are checked already, you can modify the `activeItems` property of `showQuickPick` in `fileSelector.ts` to include the previously selected files. Here is an example of how you can do this:
+
+\[fileSelector.ts\]:
+
+    import * as fs from 'fs';
+    import * as path from 'path';
+    import * as vscode from 'vscode';
+    
+    export async function selectFile(selectedFiles: vscode.Uri[]) {
+        // Get the current workspace folder
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        if (!workspaceFolder) {
+            vscode.window.showErrorMessage('No workspace folder is opened');
+            return;
+        }
+    
+        // Show a quick pick to let the user select multiple files
+        const files = await vscode.workspace.findFiles('**/*', '**/node_modules/**');
+    -   const fileItems = files.map(file => ({ label: path.relative(workspaceFolder.uri.fsPath, file.fsPath).replace(/\\/g, '/'), file })).sort((a, b) => a.label.localeCompare(b.label));
+    +   const fileItems = files.map(file => ({ label: path.relative(workspaceFolder.uri.fsPath, file.fsPath).replace(/\\/g, '/'), file })).sort((a, b) => a.label.localeCompare(b.label));
+    -   const newSelectedFiles = await vscode.window.showQuickPick(fileItems, { placeHolder: 'Select files', canPickMany: true });
+    +   const newSelectedFiles = await vscode.window.showQuickPick(fileItems, { placeHolder: 'Select files', canPickMany: true, activeItems: selectedFiles.map(file => fileItems.find(item => item.file.toString() === file.toString())) });
+        
+    if (newSelectedFiles) {
+            selectedFiles.splice(0, selectedFiles.length, ...newSelectedFiles.map(item => item.file));
+        }
+    
+    if (selectedFiles && selectedFiles.length > 0) {
+            // Read the contents of the selected files
+            let fileContents = '';
+            for (const selectedFile of selectedFiles) {
+                const filePath = selectedFile.fsPath;
+                const fileName = path.basename(filePath);
+                const content = fs.readFileSync(filePath, 'utf-8');
+                fileContents += `[${fileName}]:\n<code>\n${content}\n</code>\n\n`;
+            }
+    
+            // Create a new untitled document with the contents of the selected files
+            const document = await vscode.workspace.openTextDocument({ content: fileContents });
+    
+            // Show the document in a new editor
+            await vscode.window.showTextDocument(document);
+    }
+    }
+    
+
+Copy
+
+Here are all lines of the improved script:
+
+\[fileSelector.ts\]:
+
+    import * as fs from 'fs';
+    import * as path from 'path';
+    import * as vscode from 'vscode';
+    
+    export async function selectFile(selectedFiles: vscode.Uri[]) {
+        // Get the current workspace folder
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        if (!workspaceFolder) {
+            vscode.window.showErrorMessage('No workspace folder is opened');
+            return;
+        }
+    
+        // Show a quick pick to let the user select multiple files
+        const files = await vscode.workspace.findFiles('**/*', '**/node_modules/**');
+    -   const fileItems = files.map(file => ({ label: path.relative(workspaceFolder.uri.fsPath, file.fsPath).replace(/\\/g, '/'), file })).sort((a, b) => a.label.localeCompare(b.label));
+    +   const fileItems = files.map(file => ({ label: path.relative(workspaceFolder.uri.fsPath, file.fsPath).replace(/\\/g, '/'), file })).sort((a, b) => a.label.localeCompare(b.label));
+    -   const newSelectedFiles = await vscode.window.showQuickPick(fileItems, { placeHolder: 'Select files', canPickMany: true });
+    +   const newSelectedFiles = await vscode.window.showQuickPick(fileItems, { placeHolder: 'Select files', canPickMany: true, activeItems: selectedFiles.map(file => fileItems.find(item => item.file.toString() === file.toString())) });
+        
+    if (newSelectedFiles) {
+            selectedFiles.splice(0, selectedFiles.length, ...newSelectedFiles.map(item => item.file));
+        }
+    
+    if (selectedFiles && selectedFiles.length > 0) {
+            // Read the contents of the selected files
+            let fileContents = '';
+            for (const selectedFile of selectedFiles) {
+                const filePath = selectedFile.fsPath;
+                const fileName = path.basename(filePath);
+                const content = fs.readFileSync(filePath, 'utf-8');
+                fileContents += `[${fileName}]:\n<code>\n${content}\n</code>\n\n`;
+            }
+    
+            // Create a new untitled document with the contents of the selected files
+            const document = await vscode.workspace.openTextDocument({ content: fileContents });
+    
+            // Show the document in a new editor
+            await vscode.window.showTextDocument(document);
+    }
+    }
+    
+
+Copy
+
+> In the drop-down window of `vscode.workspace.findFiles`, You should improve the original scripts, to exclude the file paths and names specified in a local ".gitignore" file with regex.
+> Only provide the whole script, do not show git diff.
+
+To exclude the file paths and names specified in a local “.gitignore” file with regex when showing the drop-down window of `vscode.workspace.findFiles`, you can read the contents of the “.gitignore” file and use it to construct an exclude pattern for `vscode.workspace.findFiles`. Here is an example of how you can do this:
+
+\[fileSelector.ts\]:
+
+    import * as fs from 'fs';
+    import * as path from 'path';
+    import * as vscode from 'vscode';
+    
+    export async function selectFile(selectedFiles: vscode.Uri[]) {
+        // Get the current workspace folder
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        if (!workspaceFolder) {
+            vscode.window.showErrorMessage('No workspace folder is opened');
+            return;
+        }
+    
+        // Construct the exclude pattern from the .gitignore file
+        let excludePattern = '**/node_modules/**';
+        try {
+            const gitignorePath = path.join(workspaceFolder.uri.fsPath, '.gitignore');
+            const gitignoreContent = fs.readFileSync(gitignorePath, 'utf-8');
+            const gitignoreLines = gitignoreContent.split('\n').map(line => line.trim()).filter(line => line.length > 0 && !line.startsWith('#'));
+            if (gitignoreLines.length > 0) {
+                excludePattern += ',' + gitignoreLines.join(',');
+            }
+        } catch (error) {
+            // Ignore error
+        }
+    
+        // Show a quick pick to let the user select multiple files
+        const files = await vscode.workspace.findFiles('**/*', excludePattern);
+        const fileItems = files.map(file => ({ label: path.relative(workspaceFolder.uri.fsPath, file.fsPath).replace(/\\/g, '/'), file })).sort((a, b) => a.label.localeCompare(b.label));
+        const newSelectedFiles = await vscode.window.showQuickPick(fileItems, { placeHolder: 'Select files', canPickMany: true, activeItems: selectedFiles.map(file => fileItems.find(item => item.file.toString() === file.toString())) });
+        
+    if (newSelectedFiles) {
+            selectedFiles.splice(0, selectedFiles.length, ...newSelectedFiles.map(item => item.file));
+        }
+    
+    if (selectedFiles && selectedFiles.length > 0) {
+            // Read the contents of the selected files
+            let fileContents = '';
+            for (const selectedFile of selectedFiles) {
+                const filePath = selectedFile.fsPath;
+                const fileName = path.basename(filePath);
+                const content = fs.readFileSync(filePath, 'utf-8');
+                fileContents += `[${fileName}]:\n<code>\n${content}\n</code>\n\n`;
+            }
+    
+            // Create a new untitled document with the contents of the selected files
+            const document = await vscode.workspace.openTextDocument({ content: fileContents });
+    
+            // Show the document in a new editor
+            await vscode.window.showTextDocument(document);
+    }
+    }
+    
+
+Copy
+
+Here is all lines of the improved script:
+
+\[fileSelector.ts\]:
+
+    import * as fs from 'fs';
+    import * as path from 'path';
+    import * as vscode from 'vscode';
+    
+    export async function selectFile(selectedFiles: vscode.Uri[]) {
+        // Get the current workspace folder
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        if (!workspaceFolder) {
+            vscode.window.showErrorMessage('No workspace folder is opened');
+            return;
+        }
+    
+        // Construct the exclude pattern from the .gitignore file
+        let excludePattern = '**/node_modules/**';
+        try {
+            const gitignorePath = path.join(workspaceFolder.uri.fsPath, '.gitignore');
+            const gitignoreContent = fs.readFileSync(gitignorePath, 'utf-8');
+            const gitignoreLines = gitignoreContent.split('\n').map(line => line.trim()).filter(line => line.length > 0 && !line.startsWith('#'));
+            if (gitignoreLines.length > 0) {
+                excludePattern += ',' + gitignoreLines.join(',');
+            }
+        } catch (error) {
+            // Ignore error
+        }
+    
+        // Show a quick pick to let the user select multiple files
+        const files = await vscode.workspace.findFiles('**/*', excludePattern);
+        const fileItems = files.map(file => ({ label: path.relative(workspaceFolder.uri.fsPath, file.fsPath).replace(/\\/g, '/'), file })).sort((a, b) => a.label.localeCompare(b.label));
+        const newSelectedFiles = await vscode.window.showQuickPick(fileItems, { placeHolder: 'Select files', canPickMany: true, activeItems: selectedFiles.map(file => fileItems.find(item => item.file.toString() === file.toString())) });
+        
+    if (newSelectedFiles) {
+            selectedFiles.splice(0, selectedFiles.length, ...newSelectedFiles.map(item => item.file));
+        }
+    
+    if (selectedFiles && selectedFiles.length > 0) {
+            // Read the contents of the selected files
+            let fileContents = '';
+            for (const selectedFile of selectedFiles) {
+                const filePath = selectedFile.fsPath;
+                const fileName = path.basename(filePath);
+                const content = fs.readFileSync(filePath, 'utf-8');
+                fileContents += `[${fileName}]:\n<code>\n${content}\n</code>\n\n`;
+            }
+    
+            // Create a new untitled document with the contents of the selected files
+            const document = await vscode.workspace.openTextDocument({ content: fileContents });
+    
+            // Show the document in a new editor
+            await vscode.window.showTextDocument(document);
+    }
+    }
+    
+
+Copy

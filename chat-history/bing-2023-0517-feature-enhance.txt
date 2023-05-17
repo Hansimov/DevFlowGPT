@@ -236,3 +236,66 @@ Great! But your codes are not perfect, and you need to do following improvement 
 After doing the improvement steps above, please provide all lines of the improved scripts, and follow rules (with alphabets in brackets) below:
     [a] If one script has no change, do not output the codes;
     [b] Do not use git diff format, but just all lines.
+    
+
+
+Let me provide you more details to fix the error of "No overload matches this call":
+
+<error>
+No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '{ placeHolder: string; canPickMany: true; activeItems: ({ label: string; file: vscode.Uri; } | undefined)[]; }' is not assignable to parameter of type 'QuickPickOptions'.
+      Object literal may only specify known properties, and 'activeItems' does not exist in type 'QuickPickOptions'.
+</error>
+
+<error>
+Property 'file' does not exist on type 'string'.
+</error>
+
+
+Great! But your codes are not perfect, and you need to do following improvement steps (with number in brackets):
+
+[1] The drop-down menu of files to be selected (`vscode.window.showQuickPick`) should use tree structure, which have features below:
+    [a] Parent folder should be on top of its child files
+    [b] The button of check should be indented for child level files;
+
+
+After doing the improvement steps above, please provide all lines of the improved scripts, and follow rules (with alphabets in brackets) below:
+    [a] If one script has no change, do not output the codes;
+    [b] Do not use git diff format, but just all lines.
+    
+
+Let's focus on the part of the codes below in "fileSelector.ts":
+<code>
+    ...
+    // Show a quick pick to let the user select multiple files
+    const files = await vscode.workspace.findFiles('**/*', '**/node_modules/**');
+    const fileItems = files.map(file => ({ label: '  '.repeat((path.relative(workspaceFolder.uri.fsPath, file.fsPath).match(/\\/g) || []).length) + path.basename(file.fsPath), file })).sort((a, b) => a.label.localeCompare(b.label));
+    const newSelectedFiles = await vscode.window.showQuickPick(fileItems, { placeHolder: 'Select files', canPickMany: true });
+
+    if (newSelectedFiles) {
+        selectedFiles.splice(0, selectedFiles.length, ...newSelectedFiles.map(item => item.file));
+    }
+    ...
+</code>
+
+
+You should improve the following features (with number in brackets):
+
+[1] Show parent folder path for each child file item.
+Here is an example of the tree structure of the UI for QuickPick. The `[ ]` represent the check box before filename, and `---` represents the indent.
+<exp>
+[ ] ..
+--- [ ] src/
+--- --- [ ] extension.ts
+--- --- [ ] fileSelector.ts
+--- --- [ ] messageHandler.ts
+--- [ ] test/
+--- [ ] package.json
+</exp>
+
+[2] Make the status of checked box memorized, so that when next time run the command "select files", the previous-checked box could be checked already.
+
+
+In the drop-down window of `vscode.workspace.findFiles`, You should improve the original scripts, to exclude the file paths and names specified in a local ".gitignore" file with regex.
+Only provide the whole script, do not show git diff.

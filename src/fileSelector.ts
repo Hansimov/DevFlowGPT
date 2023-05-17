@@ -10,10 +10,25 @@ export async function selectFile(selectedFiles: vscode.Uri[]) {
         return;
     }
 
+    // Construct the exclude pattern from the .gitignore file
+    let excludePattern = '**/chat-history/**';
+    try {
+        const gitignorePath = path.join(workspaceFolder.uri.fsPath, '.gitignore');
+        const gitignoreContent = fs.readFileSync(gitignorePath, 'utf-8');
+        const gitignoreLines = gitignoreContent.split('\n').map(line => line.trim()).filter(line => line.length > 0 && !line.startsWith('#'));
+        if (gitignoreLines.length > 0) {
+            excludePattern += ',' + gitignoreLines.join(',');
+        }
+        excludePattern = "{" + excludePattern + "}";
+    } catch (error) {
+        throw new Error("Invalid Excluded Files Pattern");
+    }
+
     // Show a quick pick to let the user select multiple files
-    const files = await vscode.workspace.findFiles('**/*', '**/node_modules/**');
-    const fileItems = files.map(file => ({ label: '  '.repeat((path.relative(workspaceFolder.uri.fsPath, file.fsPath).match(/\\/g) || []).length) + path.basename(file.fsPath), file }));
-    const newSelectedFiles = await vscode.window.showQuickPick(fileItems, { placeHolder: 'Select files', canPickMany: true, activeItems: selectedFiles.map(file => fileItems.find(item => item.file.toString() === file.toString())) });
+    console.log(excludePattern);
+    const files = await vscode.workspace.findFiles('**/*', excludePattern);
+    const fileItems = files.map(file => ({ label: path.relative(workspaceFolder.uri.fsPath, file.fsPath).replace(/\\/g, '/'), file })).sort((a, b) => a.label.localeCompare(b.label));
+    const newSelectedFiles = await vscode.window.showQuickPick(fileItems, { placeHolder: 'Select files', canPickMany: true });
 
     if (newSelectedFiles) {
         selectedFiles.splice(0, selectedFiles.length, ...newSelectedFiles.map(item => item.file));

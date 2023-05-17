@@ -86,9 +86,7 @@ Here is an example:
 </code>
 </exp>
 
-[4] After doing the improvement steps above, please provide all lines of the improved scripts, and follow rules (with alphabets in brackets) below:
-    [a] If one script has no change, do not output the codes;
-    [b] Do not use git diff format, but just all lines.
+[4] After doing the improvement steps above, please provide all lines of the improved scripts.
 Here is an example:
 <exp>
 `[src/extension.ts]`:
