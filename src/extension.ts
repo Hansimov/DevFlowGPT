@@ -17,8 +17,9 @@ export function activate(context: vscode.ExtensionContext) {
     // TODO: Implement the logic to listen for messages from Chrome Browser and call handleMessage when a message is received
 
     // Register the command to select a file from the folder opened by vscode editor
+    let selectedFiles: vscode.Uri[] = [];
     let selectFileDisposable = vscode.commands.registerCommand('devflowgpt.selectFile', async () => {
-        await selectFile();
+        await selectFile(selectedFiles);
     });
     context.subscriptions.push(selectFileDisposable);
 }
