@@ -89,3 +89,58 @@ Great! But I would like to send message to client util the connection is establi
 
 
 Fine. But I would like to use the `sendMessageToClients()` in `extension.ts`, and also send once the connection is successfully established.
+
+
+Below is the typescript code for websocket server in vscode extension.
+Implement following features or improvements:
+[2] Use meaningful client ID to distinguish different clients.
+[1] Send message to latest connected client with these different kinds: "latest", "all", "specific".
+
+<code>
+export class WebSocketServer {
+    private _wss: ws.WebSocket.Server | undefined;
+    private _port: number = 54321;
+    private _url: string = `ws://localhost:${this._port}`;
+    private _clients: Set<ws> = new Set();
+
+    public start() {
+        this._wss = new ws.WebSocket.Server({ port: this._port });
+
+        this._wss.on('connection', (ws) => {
+            this._clients.add(ws);
+            console.log(`√ [Client connected]: ${this._url}`);
+
+            ws.on('message', (message) => {
+                console.log('> [Received]:', message.toString());
+            });
+
+            ws.send('Hello from VSCode extension!');
+            ws.on('error', (error) => {
+                console.log(`× [Error]: ${error}`);
+            });
+
+            ws.on('close', () => {
+                this._clients.delete(ws);
+                console.log(`√ [Client closed]: ${this._url}`);
+            });
+        });
+    }
+
+    public stop() {
+        if (this._wss) {
+            this._wss.close();
+            this._wss = undefined;
+        }
+    }
+
+    public sendToClients(message: string) {
+        for (const client of this._clients) {
+            client.send(message);
+        }
+    }
+}
+</code>
+
+Great! But you should do following improvements:
+[1] When the websocket server in vscode extension is stopped, it should delete the clients in the descending order that they are connected.
+[2] Use shorter client ID.

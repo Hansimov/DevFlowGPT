@@ -1,4 +1,5 @@
 import * as ws from 'ws';
+import { v4 as uuidv4 } from 'uuid';
 
 // In root path of this project, run:
 //    npm install ws 
@@ -13,14 +14,18 @@ export class WebSocketServer {
     private _wss: ws.WebSocket.Server | undefined;
     private _port: number = 54321;
     private _url: string = `ws://localhost:${this._port}`;
-    private _clients: Set<ws> = new Set();
+    // private _clients: Set<ws> = new Set();
+    private _clients: Map<string, ws> = new Map();
+    private _latestClientID: string | undefined;
 
     public start() {
         this._wss = new ws.WebSocket.Server({ port: this._port });
 
         this._wss.on('connection', (ws) => {
-            this._clients.add(ws);
-            console.log(`√ [Client connected]: ${this._url}`);
+            const clientID = uuidv4();
+            this._clients.set(clientID, ws);
+            this._latestClientID = clientID;
+            console.log(`√ [Client connected]: ${this._url} with ID ${clientID}`);
 
             ws.on('message', (message) => {
                 console.log('> [Received]:', message.toString());
@@ -32,8 +37,8 @@ export class WebSocketServer {
             });
 
             ws.on('close', () => {
-                this._clients.delete(ws);
-                console.log(`√ [Client closed]: ${this._url}`);
+                this._clients.delete(clientID);
+                console.log(`√ [Client closed]: ${this._url} with ID ${clientID}`);
             });
         });
     }
@@ -46,8 +51,27 @@ export class WebSocketServer {
     }
 
     public sendToClients(message: string) {
-        for (const client of this._clients) {
+        for (const client of this._clients.values()) {
             client.send(message);
+        }
+    }
+    public sendToClient(kind: "latest" | "all" | "specific", message: string, clientID?: string) {
+        if (kind === "latest") {
+            if (this._latestClientID) {
+                const latestClient = this._clients.get(this._latestClientID);
+                if (latestClient) {
+                    latestClient.send(message);
+                }
+            }
+        } else if (kind === "all") {
+            this.sendToClients(message);
+        } else if (kind === "specific") {
+            if (clientID) {
+                const specificClient = this._clients.get(clientID);
+                if (specificClient) {
+                    specificClient.send(message);
+                }
+            }
         }
     }
 }

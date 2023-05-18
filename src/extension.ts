@@ -25,8 +25,11 @@ export function activate(context: vscode.ExtensionContext) {
     ws.start();
     setTimeout(() => {
         ws.sendToClients("New Message from VSC");
-    }, 3000);
 
+    }, 3000);
+    setTimeout(() => {
+        ws.sendToClient("latest", "You are latest client");
+    }, 5000);
     // vscode.commands.executeCommand("devflowgpt.selectFile");
 }
 
