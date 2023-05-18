@@ -4,9 +4,6 @@ import websockets
 # 油猴 websocket 实现通讯 - 简书
 #  https://www.jianshu.com/p/a09b8d37354b
 
-# 测试链接
-#   https://live.douyin.com/250873930075
-
 ws_server = "127.0.0.1"
 ws_port = 54321
 

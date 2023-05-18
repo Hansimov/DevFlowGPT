@@ -22,10 +22,6 @@
       {
         "command": "devflowgpt.selectFile",
         "title": "DevFlowGPT: Select Files to Dump"
-      },
-      {
-        "command": "devflowgpt.startWebsocketServer",
-        "title": "DevFlowGPT: Start WebSocket Server"
       }
     ]
   },

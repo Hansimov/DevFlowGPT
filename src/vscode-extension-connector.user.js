@@ -14,20 +14,16 @@
     const port = 54321;
     const ws_url = `ws://127.0.0.1:${port}/`;
 
-    // Create a WebSocket connection
+    // WebSocket Client
     let ws = new WebSocket(ws_url);
 
-    // Connection opened
     ws.addEventListener('open', function (event) {
-        // Send a message to the VSCode extension
-        // console.log('> Sending message to VSCode extension ...');
-        console.log(`√ Server connected on: ${ws_url}`);
+        console.log(`√ Connected server: ${ws_url}`);
         ws.send('Hello from Tampermonkey!');
     });
 
-    // Listen for messages from the VSCode extension
     ws.addEventListener('message', function (event) {
-        console.log('> Received message from VSCode extension:', event.data);
+        console.log('> Received from server:', event.data);
     });
 
     ws.addEventListener('error', function (event) {
@@ -35,7 +31,7 @@
     });
 
     ws.addEventListener('close', function (event) {
-        console.log(`√ Server closed on: ${ws_url}`);
+        console.log(`√ Closed server: ${ws_url}`);
     });
 
 })();
