@@ -1,0 +1,232 @@
+I am developing a vscode extension, and I want to send the selected text to a chrome tab.
+Please do following numbered steps for me:
+[1] Analyze this requirements and provide steps.
+[2] Generate the TypeScript codes in the vscode extension for this feature.
+
+Suppose I have created `extension.ts` and `browserConnector.ts` in the `src` folder in my vscode extension project.
+Please provide the codes which implement the above feature.
+
+Could you provide the whole script of `browserConnector.ts`?
+
+This gives me error: "Cannot find name 'chrome'."
+
+Provide following info:
+[1] The steps of setup the Native Messaging Host in the Chrome browser.
+[2] The related script in vscode extension to communicate with this Native Messaging Host.
+
+Is it possible to use the Native Messaging Host to communicate with the webpage in a specified tab of Chrome browser?
+
+Then how to use vscode extension to communicate with multiple specified Chrome tabs?
+
+What is `chrome_native_messaging_host.exe`?
+
+Then are there any native messaging host exe built in vscode extension?
+
+
+Let's think about have another absolutely different solution.
+We can remember the absolute process id of a chrome tab, and then use vscode extension to pretend as a human, then interact with this process, like what the python library `pyautogui` does.
+
+Great suggestion!
+Then is it possible to use the native messaging host to browse and manipulate the DOM in the page?
+
+What about using TamperMonkey script instead of Chrome extension to implement the communication between vscode extension and Chrome tab?
+
+Then I have a solution to build the server, that is using vscode extension to launch a local server to receive and send messages from and to Chrome tab.
+Please analyze this solution, and provide details of implementation for it. 
+
+
+[1] I would like to use another port number for this server, instead of the default port 3000.
+[2] How to find available ports in windows?
+
+Suggest a good port number for this server created by vscode extension.
+
+
+Please improve following feature improvements on the two scripts:
+[1] Run the http server when the vscode extension is activated.
+[2] Send the message from TamperMonkey script to the http server in vscode extension.
+[3] Send the message from vscode extension to TamperMonkey script.
+
+Here is my `httpServer.ts` in the vscode extension:
+<code>
+import * as http from 'http';
+
+const port = 54321;
+
+const server = http.createServer((req, res) => {
+    // Handle incoming requests here
+    console.log(`Received request: ${req}`);
+});
+
+server.listen(port, () => {
+    console.log(`Server listening on port ${port}`);
+});
+</code>
+
+And here is my `vscode-extention-connector.user.js` in TamperMonkey running in Chrome:
+<code>
+// ==UserScript==
+// @name         VSCode Extension Connector
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  Communicate with vscode extension from tampermonkey script
+// @author       Hansimov
+// @match        https://www.bing.com/search*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=bing.com
+// @grant        none
+// ==/UserScript==
+
+(function () {
+    'use strict';
+    fetch('http://localhost:54321', {
+        method: 'POST',
+        body: JSON.stringify({ message: 'Hello from Tampermonkey!' }),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            // Handle response data here
+            console.log(data);
+        });
+})();
+</code>
+
+
+How to register the command of createServer in vscode extension?
+
+How to make TamperMonkey Script run without refresh the webpage?
+
+How to make the changes to TamperMonkey work immediately without refreshing?
+
+How to make the TamperMonkey script use a local version so that it could be updated with local editor?
+
+Provide the metadata for specifying the local path of the TamperMonkey script.
+
+You could use the grammer of `@require file://` to implement this.
+
+
+How to make TamperMonkey script re-require script and run when a keyboard shortcut is typed?
+
+
+When running the script, it says "GM_httpRequest is not defined".
+Please fix this.
+ 
+ 
+Below is the beginning of my TamperMonkey script.
+It is designed to create a websocket server to communicate with a vscode extension.
+Tell me what codes to add to make it work.
+
+<code>
+// @name         VSCode Extension Connector
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  Communicate with vscode extension from tampermonkey script
+// @author       Hansimov
+// @match        *://www.google.com/*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=bing.com
+// @grant        GM_xmlhttpRequest
+// @require      file://C:/_codes/GPT-DevFlow/src/vscode-extension-connector.user.js
+</code>
+
+Yes! I would like to receive and send texts between tampermonkey and vscode extension.
+
+
+When running `const socket = new WebSocket(ws_url);`,
+it raises the following error:
+
+<error>
+Socket connection to 'ws://localhost:54321/' failed: 
+Error with Permissions-Policy header: Unrecognized feature: 'ch-ua-form-factor'.
+DevTools failed to load source map: Could not load content for chrome-extension://gighmmpiobklfepjocnamgkkbiglidom/browser-polyfill.js.map: System error: net::ERR_FILE_NOT_FOUND
+</error>
+
+Does websocket support one to many communication?
+
+
+Below is the TamperMonkey script for sending message to vscode extension.
+Please provide me the code in vscode extension to launch the websocket server.
+<code>
+(function () {
+    const port = 54321;
+    const ws_url = `ws://127.0.0.1:${port}/`;
+
+    // Create a WebSocket connection
+    let ws = new WebSocket(ws_url);
+
+    // Connection opened
+    ws.addEventListener('open', function (event) {
+        // Send a message to the VSCode extension
+        // console.log('> Sending message to VSCode extension ...');
+        console.log(`√ Server connected on: ${ws_url}`);
+        ws.send('Hello from Tampermonkey!');
+    });
+
+    // Listen for messages from the VSCode extension
+    ws.addEventListener('message', function (event) {
+        console.log('> Received message from VSCode extension:', event.data);
+    });
+
+    ws.addEventListener('error', function (event) {
+        console.log('× Error:', event);
+    });
+
+    ws.addEventListener('close', function (event) {
+        console.log(`√ Server closed on: ${ws_url}`);
+    });
+
+})();
+</code>
+
+Suppose I want to implement this feature in a `httpServer.ts` TypeScript in vscode extension.
+Please provide me the code `httpServer.ts` and register the command in `extension.ts`.
+
+Great! But you should do following improvements:
+[1] The websocket server should be launched when the vscode extension is activated, and be closed when the vscode extension is deactivated.
+[2] Make the port and websocket url `ws://127.0.0.1:${port}` to a separate variable, so that it could be changed easily.
+
+Great! But you should do following improvement:
+Wrap the port and url into the class HttpServer, I don't like to make it exposed in `extension.ts`.
+
+
+Great! But you should do following improvement:
+Rename the filename of `httpServer.ts` and the class name of `HttpServer` so that the filename and class name could be consistent with the features in the script.
+
+
+when running `import * as WebSocket from 'ws';`
+it gives the following error:
+
+<error>
+Cannot find module 'ws' or its corresponding type declarations.ts(2307)
+</error>
+
+
+
+When compiling `webSocketServer.ts`, it gives the following error:
+
+<error>
+Cannot find module 'ws' or its corresponding type declarations.
+Parameter 'ws' implicitly has an 'any' type.
+Parameter 'message' implicitly has an 'any' type.
+</error>
+
+
+<error>
+Activating extension 'undefined_publisher.devflowgpt' failed: Cannot find module 'ws'
+Require stack:
+- c:\_codes\GPT-DevFlow\out\webSocketServer.js
+- c:\_codes\GPT-DevFlow\out\extension.js
+- c:\sw\vscode\resources\app\out\vs\loader.js
+- c:\sw\vscode\resources\app\out\bootstrap-amd.js
+- c:\sw\vscode\resources\app\out\bootstrap-fork.js
+- .
+</error>
+
+
+What if i want to create a websocket client with TypeScript in the vscode extension?
+
+When vscode extension connecting to tampermonkey script with websocket, it returns Buffer instead of string:
+
+<log>
+Received message from Tampermonkey: Buffer(24) [72, 101, 108, 108, 111, 32, 102, 114, 111, 109, 32, 84, 97, 109, 112, 101, 114, 109, 111, 110, 107, 101, 121, 33, buffer: ArrayBuffer(30), byteLength: 24, byteOffset: 6, length: 24, Symbol(Symbol.toStringTag): 'Uint8Array']
+</log>
