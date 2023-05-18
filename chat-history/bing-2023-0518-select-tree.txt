@@ -1,0 +1,100 @@
+Make the following TypeScript codes more readable for human:
+
+<code>
+const files = await vscode.workspace.findFiles('**/*', excludePattern);
+const fileItems = files.map(file => ({ label: path.relative(workspaceFolder.uri.fsPath, file.fsPath).replace(/\\/g, '/'), file })).sort((a, b) => a.label.localeCompare(b.label));
+const newSelectedFiles = await vscode.window.showQuickPick(fileItems, { placeHolder: 'Select files', canPickMany: true });
+</code>
+
+
+In vscode "extension.ts", how to run a command in extension when the window is open?
+
+
+Here are the commands in `package.json`, if I want the extension auto run the `devflowgpt.selectFile` when window is reloaded, how to do it?
+<code>
+  "contributes": {
+    "commands": [
+      {
+        "command": "devflowgpt.sendMessage",
+        "title": "DevFlowGPT: Send Message to Chrome Browser"
+      },
+      {
+        "command": "devflowgpt.selectFile",
+        "title": "DevFlowGPT: Select Files to Dump"
+      }
+    ]
+  },
+</code>
+
+
+
+I add this line into the script, but the command still not executed.
+
+
+There is a log: "The extension is not activated because no Vitest environment was detected."
+
+
+What does this line in `package.json` do for vscode extension?
+
+<code>
+"activationEvents": [],
+</code>
+
+
+I want the extension to be activated when the window is reloaded, how to do it?
+
+
+Using '*' activation is usually a bad idea as it impacts performance. You should try to be more specific about when your extension should be activated.
+
+What is the vscode extension command for open a folder as workspace in current window?
+
+
+What is the return type of `vscode.workspace.workspaceFolders?.[0];`
+
+
+How to specify a workspaceFolder using an uri?
+
+
+The codes below gives me error "No workspace folder is opened":
+
+<code>
+const uri = vscode.Uri.file("C:/_codes/GPT-DevFlow");
+const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
+if (!workspaceFolder) {
+    vscode.window.showErrorMessage('No workspace folder is opened');
+    return;
+}
+</code>
+
+
+Here is my current codes, however, it opens no folder:
+<code>
+// const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+const uri = vscode.Uri.file("C:/_codes/GPT-DevFlow");
+// vscode.commands.executeCommand('vscode.openFolder', uri, false);
+// const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
+const workspaceFolder: vscode.WorkspaceFolder = { uri, name: 'DevFlowGPT', index: 0 };
+if (!workspaceFolder) {
+    vscode.window.showErrorMessage('No workspace folder is opened');
+    return;
+}
+</code>
+
+
+Could you explain the differences and relationships of folder, window and workspace in vscode?
+
+
+How to add folder to workspace with vscode extension command?
+
+Great! What is the differences of `registerCommand` and `executeCommand` in vscode extension?
+
+
+How to get the current root folder of current script in typescript project of vscode extension?
+
+
+How to replace the "C:/_codes/GPT-DevFlow" with the current root folder of current script?
+<code>
+const uri = vscode.Uri.file("C:/_codes/GPT-DevFlow");
+vscode.workspace.updateWorkspaceFolders(vscode.workspace.workspaceFolders?.length || 0, 0, { uri, name: 'DevFlowGPT' });
+const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+</code>

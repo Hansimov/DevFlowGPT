@@ -4,7 +4,15 @@ import * as vscode from 'vscode';
 
 export async function selectFile(selectedFiles: vscode.Uri[]) {
     // Get the current workspace folder
+    // const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    // vscode.commands.executeCommand('vscode.openFolder', uri, false);
+    // const workspaceFolder: vscode.WorkspaceFolder = { uri, name: 'DevFlowGPT', index: 0 };
+    // const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
+    const rootFolder = path.resolve(__dirname, '..');
+    const uri = vscode.Uri.file(rootFolder);
+    vscode.workspace.updateWorkspaceFolders(vscode.workspace.workspaceFolders?.length || 0, 0, { uri, name: 'DevFlowGPT' });
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    console.log(workspaceFolder);
     if (!workspaceFolder) {
         vscode.window.showErrorMessage('No workspace folder is opened');
         return;
@@ -27,13 +35,22 @@ export async function selectFile(selectedFiles: vscode.Uri[]) {
     // Show a quick pick to let the user select multiple files
     console.log(excludePattern);
     const files = await vscode.workspace.findFiles('**/*', excludePattern);
-    const fileItems = files.map(file => ({ label: path.relative(workspaceFolder.uri.fsPath, file.fsPath).replace(/\\/g, '/'), file })).sort((a, b) => a.label.localeCompare(b.label));
-    const newSelectedFiles = await vscode.window.showQuickPick(fileItems, { placeHolder: 'Select files', canPickMany: true });
+
+    const fileItems = files.map(file => ({
+        label: path.relative(workspaceFolder.uri.fsPath, file.fsPath).replace(/\\/g, '/'),
+        file
+    })).sort((a, b) => a.label.localeCompare(b.label));
+
+    const newSelectedFiles = await vscode.window.showQuickPick(fileItems, {
+        placeHolder: 'Select files',
+        canPickMany: true,
+        ignoreFocusOut: true
+    });
+
 
     if (newSelectedFiles) {
         selectedFiles.splice(0, selectedFiles.length, ...newSelectedFiles.map(item => item.file));
     }
-
     if (selectedFiles && selectedFiles.length > 0) {
         // Read the contents of the selected files
         let fileContents = '';

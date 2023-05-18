@@ -7,11 +7,10 @@ export function activate(context: vscode.ExtensionContext) {
     let disposable = vscode.commands.registerCommand('devflowgpt.sendMessage', async () => {
         // Get the message to send from the user
         const message = await vscode.window.showInputBox({ prompt: 'Enter the message to send' });
-		handleMessage(message);
+        handleMessage(message);
     });
-	context.subscriptions.push(disposable);
-	console.log("> Handling message ...");
-	
+    context.subscriptions.push(disposable);
+    console.log("> Handling message ...");
 
     // Listen for messages from Chrome Browser
     // TODO: Implement the logic to listen for messages from Chrome Browser and call handleMessage when a message is received
@@ -21,12 +20,15 @@ export function activate(context: vscode.ExtensionContext) {
     let selectFileDisposable = vscode.commands.registerCommand('devflowgpt.selectFile', async () => {
         await selectFile(selectedFiles);
     });
+
     context.subscriptions.push(selectFileDisposable);
+
+    vscode.commands.executeCommand("devflowgpt.selectFile");
 }
 
 // Handle incoming messages from Chrome Browser
 export function handleMessage(message: string | undefined) {
     // TODO: Implement the logic to handle incoming messages from Chrome Browser
-	handleBrowserMessage(message);
-	console.log(`After handling ${message} ...`);
+    handleBrowserMessage(message);
+    console.log(`After handling ${message} ...`);
 }
