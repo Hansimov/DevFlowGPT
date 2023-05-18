@@ -1,0 +1,91 @@
+Below is typescript codes for creating a websocket server in vscode extension.
+What if I want to use the instance created from WebSocketServer class in other scripts?
+
+<code>
+import * as ws from 'ws';
+
+export class WebSocketServer {
+    private _wss: ws.WebSocket.Server | undefined;
+    private _port: number = 54321;
+    private _url: string = `ws://127.0.0.1:${this._port}/`;
+
+    public start() {
+        this._wss = new ws.WebSocket.Server({ port: this._port });
+
+        this._wss.on('connection', (ws) => {
+            console.log(`√ Client connected: ${this._url}`);
+
+            ws.on('message', (message) => {
+                console.log('> Received message from client:', message.toString());
+            });
+
+            ws.send('Hello from VSCode extension!');
+            ws.on('error', (error) => {
+                console.log(`× Error: ${error}`);
+            });
+
+            ws.on('close', () => {
+                console.log(`√ Client closed: ${this._url}`);
+            });
+        });
+    }
+
+    public stop() {
+        if (this._wss) {
+            this._wss.close();
+            this._wss = undefined;
+        }
+    }
+}
+</code>
+
+
+Great! Then how to send message to client which is connected to this websocket server?
+
+Here is the code for websocket client in TamperMonkey.
+How to keep websocket client alive?
+
+<code>
+(function () {
+    const port = 54321;
+    const ws_url = `ws://127.0.0.1:${port}/`;
+
+    // WebSocket Client
+    let ws = new WebSocket(ws_url);
+
+    ws.addEventListener('open', function (event) {
+        console.log(`√ Connected server: ${ws_url}`);
+        ws.send('Hello from TamperMonkey!');
+    });
+
+    ws.addEventListener('message', function (event) {
+        console.log('> Received:', event.data);
+    });
+
+    ws.addEventListener('error', function (event) {
+        console.log('× Error:', event);
+    });
+
+    ws.addEventListener('close', function (event) {
+        console.log(`√ Closed server: ${ws_url}`);
+    });
+
+})();
+</code>
+
+
+In the `extension.ts` of vscode extension which creates the websocket server,
+this line `ws.sendMessageToClients()` does not send the message.
+Please fix the issue.
+
+<code>
+let ws = new WebSocketServer();
+ws.start();
+ws.sendMessageToClients("New Message from VSC");
+</code>
+
+
+Great! But I would like to send message to client util the connection is established.
+
+
+Fine. But I would like to use the `sendMessageToClients()` in `extension.ts`, and also send once the connection is successfully established.

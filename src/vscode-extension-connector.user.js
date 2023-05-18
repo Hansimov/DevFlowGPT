@@ -14,25 +14,29 @@
     const port = 54321;
     const ws_url = `ws://127.0.0.1:${port}/`;
 
-    // WebSocket Client
-    let ws = new WebSocket(ws_url);
+    function connect() {
+        // WebSocket Client
+        let ws = new WebSocket(ws_url);
 
-    ws.addEventListener('open', function (event) {
-        console.log(`√ Connected server: ${ws_url}`);
-        ws.send('Hello from Tampermonkey!');
-    });
+        ws.addEventListener('open', function (event) {
+            console.log(`√ [Connected server]: ${ws_url}`);
+            ws.send('Hello from TamperMonkey!');
+        });
 
-    ws.addEventListener('message', function (event) {
-        console.log('> Received from server:', event.data);
-    });
+        ws.addEventListener('message', function (event) {
+            console.log('> [Received]:', event.data);
+        });
 
-    ws.addEventListener('error', function (event) {
-        console.log('× Error:', event);
-    });
+        ws.addEventListener('error', function (event) {
+            console.log('× [Error]:', event);
+        });
 
-    ws.addEventListener('close', function (event) {
-        console.log(`√ Closed server: ${ws_url}`);
-    });
+        ws.addEventListener('close', function (event) {
+            console.log(`√ [Closed server]: ${ws_url}`);
+            setTimeout(connect, 1000);
+        });
+    }
 
+    connect();
 })();
 

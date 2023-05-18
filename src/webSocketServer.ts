@@ -12,25 +12,28 @@ import * as ws from 'ws';
 export class WebSocketServer {
     private _wss: ws.WebSocket.Server | undefined;
     private _port: number = 54321;
-    private _url: string = `ws://127.0.0.1:${this._port}/`;
+    private _url: string = `ws://localhost:${this._port}`;
+    private _clients: Set<ws> = new Set();
 
     public start() {
         this._wss = new ws.WebSocket.Server({ port: this._port });
 
         this._wss.on('connection', (ws) => {
-            console.log(`√ Client connected: ${this._url}`);
+            this._clients.add(ws);
+            console.log(`√ [Client connected]: ${this._url}`);
 
             ws.on('message', (message) => {
-                console.log('> Received message from client:', message.toString());
+                console.log('> [Received]:', message.toString());
             });
 
             ws.send('Hello from VSCode extension!');
             ws.on('error', (error) => {
-                console.log(`× Error: ${error}`);
+                console.log(`× [Error]: ${error}`);
             });
 
             ws.on('close', () => {
-                console.log(`√ Client closed: ${this._url}`);
+                this._clients.delete(ws);
+                console.log(`√ [Client closed]: ${this._url}`);
             });
         });
     }
@@ -39,6 +42,12 @@ export class WebSocketServer {
         if (this._wss) {
             this._wss.close();
             this._wss = undefined;
+        }
+    }
+
+    public sendToClients(message: string) {
+        for (const client of this._clients) {
+            client.send(message);
         }
     }
 }

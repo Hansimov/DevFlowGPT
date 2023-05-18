@@ -23,7 +23,9 @@ export function activate(context: vscode.ExtensionContext) {
     // Start webSocketServer
     let ws = new WebSocketServer();
     ws.start();
-
+    setTimeout(() => {
+        ws.sendToClients("New Message from VSC");
+    }, 3000);
 
     // vscode.commands.executeCommand("devflowgpt.selectFile");
 }
