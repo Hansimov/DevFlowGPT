@@ -284,3 +284,17 @@ Then do following improvements:
 
 
 Suppose I have a function `recordChanges()`, Please use this function to replace the `console.log(...);` in codes above.
+
+
+Great! Now I want to pass the `recordChanges()` as the `callback` parameter in function `addMutationObserver`.
+Please improve the codes for me.
+
+```
+function recordChanges(nodeName, node) {
+    console.log(`New ${nodeName} node found:`, node);
+}
+```
+
+```   
+function addMutationObserver(observedNode, nodeName, callback, options = { childList: true, subtree: true })
+```

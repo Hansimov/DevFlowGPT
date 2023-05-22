@@ -122,3 +122,50 @@ Sure! Here’s an updated version of the code that uses the `recordChanges` func
 Copy
 
 This version of the code calls the `recordChanges` function with the same arguments as the previous `console.log` calls. You can modify the arguments passed to `recordChanges` as needed. Let me know if you have any questions. 😊
+
+> Great! Now I want to pass the `recordChanges()` as the `callback` parameter in function `addMutationObserver`.
+> Please improve the codes for me.
+> 
+> ```
+> function recordChanges(nodeName, node) {
+>     console.log(`New ${nodeName} node found:`, node);
+> }
+> ```
+> 
+> ```   
+> function addMutationObserver(observedNode, nodeName, callback, options = { childList: true, subtree: true })
+> ```
+
+Sure! Here’s an updated version of the `addMutationObserver` function that takes a `callback` parameter and uses it to log changes:
+
+    function addMutationObserver(observedNode, nodeName, callback, options = { childList: true, subtree: true }) {
+        // Check for existing child nodes named nodeName
+        observedNode.querySelectorAll(nodeName).forEach(node => {
+            callback(`Existing ${nodeName} node:`, node);
+        });
+    
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeName === nodeName) {
+                            callback(`New ${nodeName} node added:`, node);
+                        }
+                    });
+                }
+            });
+        });
+        observer.observe(observedNode, options);
+    }
+    
+
+Copy
+
+You can use this version of the `addMutationObserver` function with the `recordChanges` function you provided like this:
+
+    addMutationObserver(observedNode, nodeName, recordChanges);
+    
+
+Copy
+
+This will pass the `recordChanges` function as the `callback` parameter to `addMutationObserver`, and it will be called to log changes to the `observedNode`. Let me know if you have any questions. 😊

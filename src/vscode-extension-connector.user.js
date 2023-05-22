@@ -42,14 +42,15 @@
 
     connect();
 
-    function recordChanges() {
-
+    function recordChanges(parentNode, childNode) {
+        console.log(`Parent '${parentNode.nodeName}':`, parentNode);
+        console.log(`Child '${childNode.nodeName}':`, childNode);
     }
 
-    function addMutationObserver(observedNode, nodeName, options = { childList: true, subtree: true }) {
-        const existingNodes = observedNode.querySelectorAll(nodeName);
-        existingNodes.forEach(node => {
-            console.log(`Existing ${nodeName} node found:`, node);
+    function addMutationObserver(parentNode, childNodeName, callback, options = { childList: true, subtree: true }) {
+        const existingChildNodes = parentNode.querySelectorAll(childNodeName);
+        existingChildNodes.forEach(node => {
+            callback(parentNode, node);
         });
 
         const observer = new MutationObserver((mutations) => {
@@ -57,13 +58,13 @@
                 if (mutation.type === 'childList') {
                     mutation.addedNodes.forEach(node => {
                         if (node.nodeName === nodeName) {
-                            console.log(`New ${nodeName} node added:`, node);
+                            callback(parentNode, node);
                         }
                     });
                 }
             });
         });
-        observer.observe(observedNode, options);
+        observer.observe(parentNode, options);
     }
 
     function monitorBingChat() {
@@ -77,9 +78,8 @@
 
             if (cib_chat_main) {
                 clearInterval(intervalId);
-                console.log(`Bing Chat Found!`);
-                console.log(cib_chat_main);
-                addMutationObserver(cib_chat_main, "CIB-CHAT-TURN");
+                console.log("cib-chat-main found:", cib_chat_main);
+                addMutationObserver(cib_chat_main, "CIB-CHAT-TURN", recordChanges);
             }
         }, 1000);
     }
