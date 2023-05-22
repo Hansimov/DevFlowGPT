@@ -42,6 +42,30 @@
 
     connect();
 
+    function recordChanges() {
+
+    }
+
+    function addMutationObserver(observedNode, nodeName, options = { childList: true, subtree: true }) {
+        const existingNodes = observedNode.querySelectorAll(nodeName);
+        existingNodes.forEach(node => {
+            console.log(`Existing ${nodeName} node found:`, node);
+        });
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeName === nodeName) {
+                            console.log(`New ${nodeName} node added:`, node);
+                        }
+                    });
+                }
+            });
+        });
+        observer.observe(observedNode, options);
+    }
+
     function monitorBingChat() {
         let cib_chat_main = null;
         const intervalId = setInterval(() => {
@@ -52,26 +76,14 @@
             }
 
             if (cib_chat_main) {
+                clearInterval(intervalId);
                 console.log(`Bing Chat Found!`);
                 console.log(cib_chat_main);
-                clearInterval(intervalId);
-                cib_chat_turns = cib_chat_main.querySelectorAll("cib-chat-turn");
-                const cib_chat_main_observer = new MutationObserver((mutations) => {
-                    mutations.forEach(mutation => {
-                        if (mutation.type === 'childList') {
-                            mutation.addedNodes.forEach(node => {
-                                if (node.nodeName === 'CIB-CHAT-TURN') {
-                                    console.log('New cib-chat-turn node added:', node);
-                                }
-                            });
-                        }
-                    });
-                });
-                const cib_chat_main_observer_config = { childList: true, subtree: true };
-                cib_chat_main_observer.observe(cib_chat_main, cib_chat_main_observer_config);
+                addMutationObserver(cib_chat_main, "CIB-CHAT-TURN");
             }
         }, 1000);
     }
+
 
     window.addEventListener('load', () => {
         monitorBingChat();

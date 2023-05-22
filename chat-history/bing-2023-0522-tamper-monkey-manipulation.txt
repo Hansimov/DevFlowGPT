@@ -252,3 +252,35 @@ For each `cib-chat-turn` node, add mutation observer to the child nodes with tag
 
 
 [2] For each `cib-message-group` node, add mutation observer to the child nodes with tag `cib-message-group` of its `shadowRoot`
+
+
+
+
+Below is a minimal codes for adding mutation observer to the `observedNode` and monitor if any changes to its child nodes named `nodeName`.
+But there is a bug that if there is an existed child node named `nodeName`, then this child would not be monitored. Please fix this bug.
+
+```
+    function addMutationObserver(observedNode, nodeName, options = { childList: true, subtree: true }) {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeName === nodeName) {
+                            console.log(`New ${nodeName} node added:`, node);
+                        }
+                    });
+                }
+            });
+        });
+        observer.observe(observedNode, options);
+    }
+```
+
+Do following steps before improve my codes:
+[1] List all attributes of `mutation` type.
+
+Then do following improvements:
+[1] I would like to observe the existed node in mutation too.
+
+
+Suppose I have a function `recordChanges()`, Please use this function to replace the `console.log(...);` in codes above.
