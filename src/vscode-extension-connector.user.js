@@ -5,6 +5,7 @@
 // @description  Communicate with vscode extension from tampermonkey script
 // @author       Hansimov
 // @match        *://www.bing.com/search*
+// @exclude      *://www.bing.com/search?show*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=bing.com
 // @grant        none
 // @require      file://C:/_codes/GPT-DevFlow/src/vscode-extension-connector.user.js
@@ -13,43 +14,6 @@
 (function () {
     const port = 54321;
     const ws_url = `ws://127.0.0.1:${port}/`;
-
-    function monitorBingChat() {
-        let targetNode = null;
-        const intervalId = setInterval(() => {
-            try {
-                targetNode = document.querySelector(".cib-serp-main").shadowRoot
-                    .querySelector("#cib-conversation-main").shadowRoot
-                    .querySelector("#cib-chat-main > cib-chat-turn").shadowRoot;
-                // console.log(`targetNode: ${targetNode}`);
-            } catch (error) {
-                // console.log("Bing Chat Not Found ...");
-            }
-
-            if (targetNode) {
-                console.log(`Bing Chat Found!`);
-                clearInterval(intervalId);
-                // Create an observer instance
-                const observer = new MutationObserver((mutationsList, observer) => {
-                    // Loop through the list of mutations
-                    for (const mutation of mutationsList) {
-                        // Check if nodes were added or removed
-                        if (mutation.addedNodes.length > 0) {
-                            console.log('Nodes added:', mutation.addedNodes);
-                        } else if (mutation.removedNodes.length > 0) {
-                            console.log('Nodes removed:', mutation.removedNodes);
-                        }
-                    }
-                });
-
-                // Options for the observer (which mutations to observe)
-                const config = { childList: true, subtree: true };
-
-                // Start observing the target node for configured mutations
-                observer.observe(targetNode, config);
-            }
-        }, 1000);
-    }
 
     function connect() {
         // WebSocket Client
@@ -77,6 +41,38 @@
     }
 
     connect();
+
+    function monitorBingChat() {
+        let cib_chat_main = null;
+        const intervalId = setInterval(() => {
+            try {
+                cib_chat_main = document.querySelector(".cib-serp-main").shadowRoot.querySelector("#cib-conversation-main").shadowRoot.querySelector("#cib-chat-main");
+            } catch (error) {
+                // console.log("Bing Chat Not Found ...");
+            }
+
+            if (cib_chat_main) {
+                console.log(`Bing Chat Found!`);
+                console.log(cib_chat_main);
+                clearInterval(intervalId);
+                cib_chat_turns = cib_chat_main.querySelectorAll("cib-chat-turn");
+                const cib_chat_main_observer = new MutationObserver((mutations) => {
+                    mutations.forEach(mutation => {
+                        if (mutation.type === 'childList') {
+                            mutation.addedNodes.forEach(node => {
+                                if (node.nodeName === 'CIB-CHAT-TURN') {
+                                    console.log('New cib-chat-turn node added:', node);
+                                }
+                            });
+                        }
+                    });
+                });
+                const cib_chat_main_observer_config = { childList: true, subtree: true };
+                cib_chat_main_observer.observe(cib_chat_main, cib_chat_main_observer_config);
+            }
+        }, 1000);
+    }
+
     window.addEventListener('load', () => {
         monitorBingChat();
     });

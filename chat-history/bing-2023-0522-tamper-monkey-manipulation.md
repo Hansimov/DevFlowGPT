@@ -284,3 +284,217 @@ When a web page is loaded in a browser, several events are fired in a specific o
 It’s important to note that not all of these events are guaranteed to fire every time a page is loaded. For example, the `beforeunload` and `unload` events are only fired when the user navigates away from the page or closes the browser window.
 
 I hope this helps! Is there anything else I can help you with?
+
+> Great! Below is my latest codes for function `monitorBingChat()`.
+> Please do following improvements:
+> [1] Check if the addedNodes is fully loaded.
+> [2] Print the contents of addedNodes when fully loaded.
+> 
+> ```
+>     function monitorBingChat() {
+>         let targetNode = null;
+>         const intervalId = setInterval(() => {
+>             try {
+>                 targetNode = document.querySelector(".cib-serp-main").shadowRoot
+>                     .querySelector("#cib-conversation-main").shadowRoot
+>                     .querySelector("#cib-chat-main > cib-chat-turn").shadowRoot;
+>                 // console.log(`targetNode: ${targetNode}`);
+>             } catch (error) {
+>                 // console.log("Bing Chat Not Found ...");
+>             }
+> 
+>             if (targetNode) {
+>                 console.log(`Bing Chat Found!`);
+>                 console.log(targetNode);
+>                 clearInterval(intervalId);
+>                 // Create an observer instance
+>                 const observer = new MutationObserver((mutationsList, observer) => {
+>                     // Loop through the list of mutations
+>                     for (const mutation of mutationsList) {
+>                         // Check if nodes were added or removed
+>                         if (mutation.addedNodes.length > 0) {
+>                             console.log('Nodes added:', mutation.addedNodes);
+>                         } else if (mutation.removedNodes.length > 0) {
+>                             console.log('Nodes removed:', mutation.removedNodes);
+>                         }
+>                     }
+>                 });
+> 
+>                 // Options for the observer (which mutations to observe)
+>                 const config = { childList: true, subtree: true };
+> 
+>                 // Start observing the target node for configured mutations
+>                 observer.observe(targetNode, config);
+>             }
+>         }, 1000);
+>     }
+> ```
+
+Here is an improved version of your code that checks if the addedNodes is fully loaded and prints the contents of addedNodes when fully loaded:
+
+    function monitorBingChat() {
+        let targetNode = null;
+        const intervalId = setInterval(() => {
+            try {
+                targetNode = document.querySelector(".cib-serp-main").shadowRoot
+                    .querySelector("#cib-conversation-main").shadowRoot
+                    .querySelector("#cib-chat-main > cib-chat-turn").shadowRoot;
+            } catch (error) {}
+    
+            if (targetNode) {
+                console.log(`Bing Chat Found!`);
+                clearInterval(intervalId);
+                // Create an observer instance
+                const observer = new MutationObserver((mutationsList, observer) => {
+                    // Loop through the list of mutations
+                    for (const mutation of mutationsList) {
+                        // Check if nodes were added or removed
+                        if (mutation.addedNodes.length > 0) {
+                            for (const node of mutation.addedNodes) {
+                                if (node.nodeType === Node.ELEMENT_NODE && node.complete) {
+                                    console.log('Node added:', node);
+                                }
+                            }
+                        } else if (mutation.removedNodes.length > 0) {
+                            console.log('Nodes removed:', mutation.removedNodes);
+                        }
+                    }
+                });
+    
+                // Options for the observer (which mutations to observe)
+                const config = { childList: true, subtree: true };
+    
+                // Start observing the target node for configured mutations
+                observer.observe(targetNode, config);
+            }
+        }, 1000);
+    }
+    
+
+Copy
+
+Is there anything else you would like me to help with? 😊
+
+> I use the below js script to get specific text content of the chat turns in Bing AI Chat:
+> 
+> ```
+> document.querySelector(".cib-serp-main").shadowRoot.querySelector("#cib-conversation-main").shadowRoot.querySelector("#cib-chat-main > cib-chat-turn").shadowRoot.querySelectorAll("cib-message-group")[1].shadowRoot.querySelectorAll("cib-message")[2].shadowRoot.querySelector("cib-shared > div > div > div.ac-textBlock").innerHTML
+> ```
+> 
+> And here is its outputs:
+> 
+> ```
+> '<p>Sure! There are many resources available to learn about prompt engineering. Here are some tutorials that might be helpful:</p>\n<ul>\n<li><a class="tooltip-target" data-citationid="b98e7d17-b9d8-67d5-2422-4a7cf4f3c657-5-group" h="ID=SERP,5026.1"><strong>Learn Prompting: Your Guide to Communicating with AI</strong> </a><a href="https://learnprompting.org/" class="ac-anchor sup-target" target="_blank" data-citationid="b98e7d17-b9d8-67d5-2422-4a7cf4f3c657-5" aria-label="Learn Prompting: Your Guide to Communicating with AI" h="ID=SERP,5026.1"><sup>1</sup></a></li>\n<li><a class="tooltip-target" data-citationid="b98e7d17-b9d8-67d5-2422-4a7cf4f3c657-9-group" h="ID=SERP,5026.1"><strong>Prompt engineering techniques with Azure OpenAI</strong> </a><a href="https://learn.microsoft.com/en-us/azure/cognitive-services/openai/concepts/advanced-prompt-engineering" class="ac-anchor sup-target" target="_blank" data-citationid="b98e7d17-b9d8-67d5-2422-4a7cf4f3c657-9" aria-label="Prompt engineering techniques with Azure OpenAI - Azure OpenAI Service ..." h="ID=SERP,5026.1"><sup>2</sup></a></li>\n<li><a class="tooltip-target" data-citationid="b98e7d17-b9d8-67d5-2422-4a7cf4f3c657-13-group" h="ID=SERP,5026.1"><strong>A Complete Introduction to Prompt Engineering</strong> </a><a href="https://101blockchains.com/prompt-engineering/" class="ac-anchor sup-target" target="_blank" data-citationid="b98e7d17-b9d8-67d5-2422-4a7cf4f3c657-13" aria-label="A Complete Introduction to Prompt Engineering - 101 Blockchains" h="ID=SERP,5026.1"><sup>3</sup></a></li>\n<li><a class="tooltip-target" data-citationid="b98e7d17-b9d8-67d5-2422-4a7cf4f3c657-17-group" h="ID=SERP,5026.1"><strong>Prompt Engineering+: Master Speaking To AI (2023)</strong> </a><a href="https://www.udemy.com/course/mastering-prompt-engineering-learn-to-how-to-talk-to-ai/" class="ac-anchor sup-target" target="_blank" data-citationid="b98e7d17-b9d8-67d5-2422-4a7cf4f3c657-17" aria-label="Prompt Engineering+: Master Speaking To AI (2023) - Udemy" h="ID=SERP,5026.1"><sup>4</sup></a></li>\n</ul>\n<p>Is there a specific aspect of prompt engineering you’re interested in learning more about?</p>\n'
+> ```
+> 
+> In real time, the above content is printed in a stream mode, which means the text is generated word by word, not all at once.
+> So how could I get the text content of the chat turns in real time, and print it in console?
+
+You can use a `MutationObserver` to monitor changes to the text content of the chat turns in real time. Here is an example of how you can do this:
+
+    const targetNode = document.querySelector(".cib-serp-main").shadowRoot.querySelector("#cib-conversation-main").shadowRoot.querySelector("#cib-chat-main > cib-chat-turn").shadowRoot.querySelectorAll("cib-message-group")[1].shadowRoot.querySelectorAll("cib-message")[2].shadowRoot.querySelector("cib-shared > div > div > div.ac-textBlock");
+    
+    // Create an observer instance
+    const observer = new MutationObserver((mutationsList, observer) => {
+        // Loop through the list of mutations
+        for (const mutation of mutationsList) {
+            // Check if characterData was modified
+            if (mutation.type === 'characterData') {
+                console.log('Text content changed:', mutation.target.textContent);
+            }
+        }
+    });
+    
+    // Options for the observer (which mutations to observe)
+    const config = { characterData: true, subtree: true };
+    
+    // Start observing the target node for configured mutations
+    observer.observe(targetNode, config);
+    
+
+Copy
+
+This code creates a `MutationObserver` that monitors changes to the text content of the specified chat turn. Whenever the text content changes, it logs the new text content to the console.
+
+Is this what you were looking for? 😊
+
+> Great! Then how to make the console in  DevTools of Chrome keep outputting the changing texts without line breaks?
+
+You can use the `console.log` method with the `%c` format specifier to output text to the console without line breaks. Here is an example:
+
+    const targetNode = document.querySelector(".cib-serp-main").shadowRoot.querySelector("#cib-conversation-main").shadowRoot.querySelector("#cib-chat-main > cib-chat-turn").shadowRoot.querySelectorAll("cib-message-group")[1].shadowRoot.querySelectorAll("cib-message")[2].shadowRoot.querySelector("cib-shared > div > div > div.ac-textBlock");
+    
+    // Create an observer instance
+    const observer = new MutationObserver((mutationsList, observer) => {
+        // Loop through the list of mutations
+        for (const mutation of mutationsList) {
+            // Check if characterData was modified
+            if (mutation.type === 'characterData') {
+                console.log('%c' + mutation.target.textContent, 'white-space: pre;');
+            }
+        }
+    });
+    
+    // Options for the observer (which mutations to observe)
+    const config = { characterData: true, subtree: true };
+    
+    // Start observing the target node for configured mutations
+    observer.observe(targetNode, config);
+    
+
+Copy
+
+This code uses the `console.log` method with the `%c` format specifier and a CSS `white-space: pre;` style to output text to the console without line breaks.
+
+Is this what you were looking for? 😊
+
+> Great! But there are multiple `cib-chat-turn` under  `#cib-chat-main`, and I want to extract the contents of `ac-textBlock`. How could I output the changes of the expected contents after each node created and updated?
+> 
+> For your information, Here are two examples of the expected innerHTML that I would like to extract.
+> 
+> Example 1:
+> ```
+> document.querySelector(".cib-serp-main").shadowRoot.querySelector("#cib-conversation-main").shadowRoot.querySelectorAll("#cib-chat-main > cib-chat-turn")[0].shadowRoot.querySelectorAll("cib-message-group")[1].shadowRoot.querySelectorAll("cib-message")[2].shadowRoot.querySelector("cib-shared > div > div > div.ac-textBlock").innerHTML
+> ```
+> 
+> Example 2:
+> ```
+> document.querySelector(".cib-serp-main").shadowRoot.querySelector("#cib-conversation-main").shadowRoot.querySelectorAll("#cib-chat-main > cib-chat-turn")[1].shadowRoot.querySelectorAll("cib-message-group")[1].shadowRoot.querySelectorAll("cib-message")[0].shadowRoot.querySelector("cib-shared > div > div > div.ac-textBlock").innerHTML
+> ```
+
+You can use a `MutationObserver` to monitor changes to the `#cib-chat-main` element and its descendants. Here is an example of how you can do this:
+
+    const targetNode = document.querySelector(".cib-serp-main").shadowRoot.querySelector("#cib-conversation-main").shadowRoot.querySelector("#cib-chat-main");
+    
+    // Create an observer instance
+    const observer = new MutationObserver((mutationsList, observer) => {
+        // Loop through the list of mutations
+        for (const mutation of mutationsList) {
+            // Check if nodes were added or removed
+            if (mutation.addedNodes.length > 0) {
+                for (const node of mutation.addedNodes) {
+                    if (node.nodeType === Node.ELEMENT_NODE && node.nodeName === 'CIB-CHAT-TURN') {
+                        const textBlocks = node.shadowRoot.querySelectorAll("cib-message-group cib-message cib-shared > div > div > div.ac-textBlock");
+                        for (const textBlock of textBlocks) {
+                            console.log(textBlock.innerHTML);
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Options for the observer (which mutations to observe)
+    const config = { childList: true, subtree: true };
+    
+    // Start observing the target node for configured mutations
+    observer.observe(targetNode, config);
+    
+
+Copy
+
+This code creates a `MutationObserver` that monitors changes to the `#cib-chat-main` element and its descendants. Whenever a new `cib-chat-turn` element is added, it queries the element for all `ac-textBlock` elements and logs their innerHTML to the console.
+
+Is this what you were looking for? 😊
+
+> Great! But you should also output the changed texts of the innerHTML in real time to console without line breaks.
