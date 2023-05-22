@@ -27,21 +27,21 @@ export class WebSocketServer {
             this._clients.set(clientID, ws);
             this._latestClientID = clientID;
             this._clientOrder.push(clientID);
-            console.log(`√ [Client connected]: ${this._url} with ID ${clientID}`);
+            console.log(`√ [Server] Client connected. ID: ${clientID}`);
 
             ws.on('message', (message) => {
-                console.log('> [Received]:', message.toString());
+                console.log('> [Server] [Received]:', message.toString());
             });
 
             ws.send('Hello from VSCode extension!');
 
             ws.on('error', (error) => {
-                console.log(`× [Error]: ${error}`);
+                console.log(`× [Server] [Error]: ${error}`);
             });
 
             ws.on('close', () => {
+                console.log(`√ [Server] Client closed. ID: ${clientID}`);
                 this._clients.delete(clientID);
-                console.log(`√ [Client closed]: ${this._url} with ID ${clientID}`);
             });
         });
     }
