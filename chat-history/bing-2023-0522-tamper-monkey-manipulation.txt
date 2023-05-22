@@ -359,3 +359,28 @@ Below are my current codes for your information:
 
 Great! But I forget to tell you that, the "CIB-MESSAGE-GROUP" nodes are not directly under "CIB-CHAT-TURN" nodes, but under the `shadowRoot` of "CIB-CHAT-TURN" nodes.
 Please modify your codes to handle this case.
+
+
+Great, You solution works!
+Now I would like to add mutation observer for "CIB-MESSAGE-GROUP", and the child node name is "CIG-MESSAGE".
+
+Great! Let's keep moving forward.
+Now I would like to add mutation observer for "CIB-MESSAGE" nodes.
+The `type` of "cib-message" nodes could be "meta", "text" and "host", for each shadowRoot of "cib-message" nodes:
+[1] If type is "meta", we need to observe child div with classname "meta-text", and ignore other divs.
+[2] If type is "text", we need to observe the div with class "content" under the node named "cib-shared", and ignore other divs.
+[3] If type is "host", we need to observe the "iframe" element under the node named "cib-shared".
+
+
+Your solution gives me the following error:
+
+```
+Uncaught TypeError: Failed to execute 'observe' on 'MutationObserver': The options object may only set 'attributeFilter' when 'attributes' is true or not present.
+ ```
+ 
+Great! Let me provide more details for the previous task.
+I would like to add mutation observer for "CIB-MESSAGE" nodes.
+The `type` of "cib-message" nodes could be "meta", "text" and "host", for each shadowRoot of "cib-message" nodes:
+[1] If type is "meta", we need to observe child div with classname "meta-text", and ignore other divs.
+[2] If type is "text", we need to observe the div with class "content" under the node named "cib-shared", and ignore other divs.
+[3] If type is "host", we need to observe the "iframe" element under the node named "cib-shared".

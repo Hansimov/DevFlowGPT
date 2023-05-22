@@ -367,3 +367,221 @@ When calling `addMutationObserver` from the `monitorBingChat` function, we pass 
 This will add a new mutation observer to each newly added `CIB-CHAT-TURN` node that monitors changes to its `CIB-MESSAGE-GROUP` child nodes in its `shadowRoot` and calls the `recordChanges` function when a new `CIB-MESSAGE-GROUP` node is added.
 
 Let me know if this is what you were looking for or if you have any questions. 😊
+
+> Great, You solution works!
+> Now I would like to add mutation observer for "CIB-MESSAGE-GROUP", and the child node name is "CIG-MESSAGE".
+
+If you want to add a mutation observer for `CIB-MESSAGE-GROUP` nodes and monitor changes to their `CIG-MESSAGE` child nodes, you can modify the `childCallback` parameter passed to the `addMutationObserver` function when calling it from the `monitorBingChat` function. Here’s an example:
+
+    function monitorBingChat() {
+        let cib_chat_main = null;
+        const intervalId = setInterval(() => {
+            try {
+                cib_chat_main = document.querySelector(".cib-serp-main").shadowRoot.querySelector("#cib-conversation-main").shadowRoot.querySelector("#cib-chat-main");
+            } catch (error) {
+                // console.log("Bing Chat Not Found ...");
+            }
+    
+            if (cib_chat_main) {
+                clearInterval(intervalId);
+                console.log("cib-chat-main found:", cib_chat_main);
+                addMutationObserver(cib_chat_main, "CIB-CHAT-TURN", recordChanges,
+                    (cib_chat_turn) => addMutationObserver(cib_chat_turn.shadowRoot, "CIB-MESSAGE-GROUP", recordChanges,
+                        (cib_message_group) => addMutationObserver(cib_message_group.shadowRoot, "CIG-MESSAGE", recordChanges)
+                    )
+                );
+            }
+        }, 1000);
+    }
+    
+
+Copy
+
+In this version of the code, we pass an additional arrow function as the `childCallback` parameter when calling `addMutationObserver` with `"CIB-MESSAGE-GROUP"` as the `childNodeName`. This arrow function calls `addMutationObserver` again with the `shadowRoot` property of the newly added `CIB-MESSAGE-GROUP` node as the `parentNode`, `"CIG-MESSAGE"` as the `childNodeName`, and `recordChanges` as the `callback`.
+
+This will add a new mutation observer to each newly added `CIB-MESSAGE-GROUP` node that monitors changes to its `CIG-MESSAGE` child nodes in its `shadowRoot` and calls the `recordChanges` function when a new `CIG-MESSAGE` node is added.
+
+Let me know if this is what you were looking for or if you have any questions. 😊
+
+> Great! Let's keep moving forward.
+> Now I would like to add mutation observer for "CIB-MESSAGE" nodes.
+> The `type` of "cib-message" nodes could be "meta", "text" and "host", for each shadowRoot of "cib-message" nodes:
+> [1] If type is "meta", we need to observe child div with classname "meta-text".
+> [2] If type is "text", we need to observe the div with class "content" under the node named "cib-shared".
+> [3] If type is "host", we need to observe the "iframe" element under the node named "cib-shared".
+
+If you want to add a mutation observer for `CIB-MESSAGE` nodes and monitor changes to their child nodes based on their `type` attribute, you can modify the `childCallback` parameter passed to the `addMutationObserver` function when calling it from the `monitorBingChat` function. Here’s an example:
+
+    function monitorBingChat() {
+        let cib_chat_main = null;
+        const intervalId = setInterval(() => {
+            try {
+                cib_chat_main = document.querySelector(".cib-serp-main").shadowRoot.querySelector("#cib-conversation-main").shadowRoot.querySelector("#cib-chat-main");
+            } catch (error) {
+                // console.log("Bing Chat Not Found ...");
+            }
+    
+            if (cib_chat_main) {
+                clearInterval(intervalId);
+                console.log("cib-chat-main found:", cib_chat_main);
+                addMutationObserver(cib_chat_main, "CIB-CHAT-TURN", recordChanges,
+                    (cib_chat_turn) => addMutationObserver(cib_chat_turn.shadowRoot, "CIB-MESSAGE-GROUP", recordChanges,
+                        (cib_message_group) => addMutationObserver(cib_message_group.shadowRoot, "CIB-MESSAGE", recordChanges,
+                            (cib_message) => {
+                                const type = cib_message.getAttribute('type');
+                                if (type === 'meta') {
+                                    addMutationObserver(cib_message.shadowRoot, "DIV", recordChanges, null, { childList: true, subtree: true, attributes: false, attributeFilter: ['class'], attributeOldValue: false });
+                                } else if (type === 'text') {
+                                    const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+                                    if (cib_shared) {
+                                        addMutationObserver(cib_shared.shadowRoot, "DIV", recordChanges, null, { childList: true, subtree: true, attributes: false, attributeFilter: ['class'], attributeOldValue: false });
+                                    }
+                                } else if (type === 'host') {
+                                    const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+                                    if (cib_shared) {
+                                        addMutationObserver(cib_shared.shadowRoot, "IFRAME", recordChanges);
+                                    }
+                                }
+                            }
+                        )
+                    )
+                );
+            }
+        }, 1000);
+    }
+    
+
+Copy
+
+In this version of the code, we pass an additional arrow function as the `childCallback` parameter when calling `addMutationObserver` with `"CIB-MESSAGE"` as the `childNodeName`. This arrow function checks the value of the `type` attribute on the newly added `CIB-MESSAGE` node and calls `addMutationObserver` with different arguments depending on its value.
+
+If the `type` attribute is `"meta"`, we call `addMutationObserver` with the `shadowRoot` property of the newly added `CIB-MESSAGE` node as the `parentNode`, `"DIV"` as the `childNodeName`, and `recordChanges` as the `callback`. This will add a new mutation observer that monitors changes to `DIV` elements in the `shadowRoot` of the newly added `CIB-MESSAGE` node and calls the `recordChanges` function when a new `DIV` element is added.
+
+If the `type` attribute is `"text"`, we query for a `CIB-SHARED` element in the `shadowRoot` of the newly added `CIB-MESSAGE` node and call `addMutationObserver` with its `shadowRoot` property as the `parentNode`, `"DIV"` as the `childNodeName`, and `recordChanges` as the `callback`. This will add a new mutation observer that monitors changes to `DIV` elements in the `shadowRoot` of the found `CIB-SHARED` element and calls the `recordChanges` function when a new `DIV` element is added.
+
+If the `type` attribute is `"host"`, we query for a `CIB-SHARED` element in the shadowRoot of the newly added CIB-MESSAGE node and call addMutationObserver with its shadowRoot property as the parentNode, “IFRAME” as the childNodeName, and recordChanges as the callback. This will add a new mutation observer that monitors changes to IFRAME elements in the shadowRoot of the found CIB-SHARED element and calls the recordChanges function when a new IFRAME element is added.
+
+Let me know if this is what you were looking for or if you have any questions. 😊
+
+> Your solution gives me the following error:
+> 
+> ```
+> Uncaught TypeError: Failed to execute 'observe' on 'MutationObserver': The options object may only set 'attributeFilter' when 'attributes' is true or not present.
+>  ```
+
+The error message you’re seeing indicates that the `options` object passed to the `observe` method of a `MutationObserver` instance is invalid because it sets the `attributeFilter` property while the `attributes` property is set to `false`. According to the [MutationObserver documentation](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver/observe), the `attributeFilter` property can only be set if the `attributes` property is either `true` or not present in the `options` object.
+
+To fix this issue, you can either remove the `attributes: false` property from the `options` object passed to the `observe` method, or remove the `attributeFilter` property. Here’s an example that removes the `attributes: false` property:
+
+    function monitorBingChat() {
+        let cib_chat_main = null;
+        const intervalId = setInterval(() => {
+            try {
+                cib_chat_main = document.querySelector(".cib-serp-main").shadowRoot.querySelector("#cib-conversation-main").shadowRoot.querySelector("#cib-chat-main");
+            } catch (error) {
+                // console.log("Bing Chat Not Found ...");
+            }
+    
+            if (cib_chat_main) {
+                clearInterval(intervalId);
+                console.log("cib-chat-main found:", cib_chat_main);
+                addMutationObserver(cib_chat_main, "CIB-CHAT-TURN", recordChanges,
+                    (cib_chat_turn) => addMutationObserver(cib_chat_turn.shadowRoot, "CIB-MESSAGE-GROUP", recordChanges,
+                        (cib_message_group) => addMutationObserver(cib_message_group.shadowRoot, "CIB-MESSAGE", recordChanges,
+                            (cib_message) => {
+                                const type = cib_message.getAttribute('type');
+                                if (type === 'meta') {
+                                    addMutationObserver(cib_message.shadowRoot, "DIV", recordChanges, null, { childList: true, subtree: true, attributeFilter: ['class'], attributeOldValue: false });
+                                } else if (type === 'text') {
+                                    const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+                                    if (cib_shared) {
+                                        addMutationObserver(cib_shared.shadowRoot, "DIV", recordChanges, null, { childList: true, subtree: true, attributeFilter: ['class'], attributeOldValue: false });
+                                    }
+                                } else if (type === 'host') {
+                                    const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+                                    if (cib_shared) {
+                                        addMutationObserver(cib_shared.shadowRoot, "IFRAME", recordChanges);
+                                    }
+                                }
+                            }
+                        )
+                    )
+                );
+            }
+        }, 1000);
+    }
+    
+
+Copy
+
+In this version of the code, we removed the `attributes: false` property from the `options` object passed to the `observe` method when calling `addMutationObserver` with `"DIV"` as the `childNodeName`. This should fix the error you’re seeing and allow you to observe changes to the specified attributes using the `attributeFilter` property.
+
+Let me know if this fixes the issue or if you have any questions. 😊
+
+> Great! Let me provide more details for the previous task.
+> I would like to add mutation observer for "CIB-MESSAGE" nodes.
+> The `type` of "cib-message" nodes could be "meta", "text" and "host", for each shadowRoot of "cib-message" nodes:
+> [1] If type is "meta", we need to observe child div with classname "meta-text", and ignore other divs.
+> [2] If type is "text", we need to observe the div with class "content" under the node named "cib-shared", and ignore other divs.
+> [3] If type is "host", we need to observe the "iframe" element under the node named "cib-shared".
+
+If you want to add a mutation observer for `CIB-MESSAGE` nodes and monitor changes to specific child nodes based on their `type` attribute and class name, you can modify the `childCallback` parameter passed to the `addMutationObserver` function when calling it from the `monitorBingChat` function. Here’s an example:
+
+    function monitorBingChat() {
+        let cib_chat_main = null;
+        const intervalId = setInterval(() => {
+            try {
+                cib_chat_main = document.querySelector(".cib-serp-main").shadowRoot.querySelector("#cib-conversation-main").shadowRoot.querySelector("#cib-chat-main");
+            } catch (error) {
+                // console.log("Bing Chat Not Found ...");
+            }
+    
+            if (cib_chat_main) {
+                clearInterval(intervalId);
+                console.log("cib-chat-main found:", cib_chat_main);
+                addMutationObserver(cib_chat_main, "CIB-CHAT-TURN", recordChanges,
+                    (cib_chat_turn) => addMutationObserver(cib_chat_turn.shadowRoot, "CIB-MESSAGE-GROUP", recordChanges,
+                        (cib_message_group) => addMutationObserver(cib_message_group.shadowRoot, "CIB-MESSAGE", recordChanges,
+                            (cib_message) => {
+                                const type = cib_message.getAttribute('type');
+                                if (type === 'meta') {
+                                    addMutationObserver(cib_message.shadowRoot, "DIV", (parentNode, node) => {
+                                        if (node.classList.contains('meta-text')) {
+                                            recordChanges(parentNode, node);
+                                        }
+                                    }, null, { childList: true, subtree: true });
+                                } else if (type === 'text') {
+                                    const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+                                    if (cib_shared) {
+                                        addMutationObserver(cib_shared.shadowRoot, "DIV", (parentNode, node) => {
+                                            if (node.classList.contains('content')) {
+                                                recordChanges(parentNode, node);
+                                            }
+                                        }, null, { childList: true, subtree: true });
+                                    }
+                                } else if (type === 'host') {
+                                    const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+                                    if (cib_shared) {
+                                        addMutationObserver(cib_shared.shadowRoot, "IFRAME", recordChanges);
+                                    }
+                                }
+                            }
+                        )
+                    )
+                );
+            }
+        }, 1000);
+    }
+    
+
+Copy
+
+In this version of the code, we pass an additional arrow function as the `childCallback` parameter when calling `addMutationObserver` with `"CIB-MESSAGE"` as the `childNodeName`. This arrow function checks the value of the `type` attribute on the newly added `CIB-MESSAGE` node and calls `addMutationObserver` with different arguments depending on its value.
+
+If the `type` attribute is `"meta"`, we call `addMutationObserver` with the `shadowRoot` property of the newly added `CIB-MESSAGE` node as the `parentNode`, `"DIV"` as the `childNodeName`, and an arrow function as the `callback`. This arrow function checks if the added `DIV` element has a class name of `"meta-text"` and calls the `recordChanges` function if it does. This will add a new mutation observer that monitors changes to `DIV` elements in the `shadowRoot` of the newly added `CIB-MESSAGE` node and calls the `recordChanges` function only when a new `DIV` element with a class name of `"meta-text"` is added.
+
+If the `type` attribute is `"text"`, we query for a `CIB-SHARED` element in the shadowRoot of the newly added CIB-MESSAGE node and call addMutationObserver with its shadowRoot property as the parentNode, “DIV” as the childNodeName, and an arrow function as the callback. This arrow function checks if the added DIV element has a class name of “content” and calls the recordChanges function if it does. This will add a new mutation observer that monitors changes to DIV elements in the shadowRoot of the found CIB-SHARED element and calls the recordChanges function only when a new DIV element with a class name of “content” is added.
+
+If the type attribute is “host”, we query for a CIB-SHARED element in the shadowRoot of the newly added CIB-MESSAGE node and call addMutationObserver with its shadowRoot property as the parentNode, “IFRAME” as the childNodeName, and recordChanges as the callback. This will add a new mutation observer that monitors changes to IFRAME elements in the shadowRoot of the found CIB-SHARED element and calls the recordChanges function when a new IFRAME element is added.
+
+Let me know if this is what you were looking for or if you have any questions. 😊

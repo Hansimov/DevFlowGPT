@@ -11,6 +11,8 @@
 // @require      file://C:/_codes/GPT-DevFlow/src/vscode-extension-connector.user.js
 // ==/UserScript==
 
+/* eslint-disable @typescript-eslint/naming-convention */
+
 (function () {
     const port = 54321;
     const ws_url = `ws://127.0.0.1:${port}/`;
@@ -43,12 +45,17 @@
     connect();
 
     function recordChanges(parentNode, childNode) {
-        console.log(`Parent '${parentNode.nodeName}':`, parentNode);
-        console.log(`Child '${childNode.nodeName}':`, childNode);
+        // console.log(`Parent '${parentNode.nodeName}':`, parentNode);
+        console.log(`'${childNode.nodeName}':`, childNode);
     }
 
-    function addMutationObserver(parentNode, childNodeName, callback, childCallback = null, options = { childList: true, subtree: true }) {
-        const root = parentNode.shadowRoot || parentNode;
+    function addMutationObserver(parentNode, childNodeName, callback, childCallback = null, options = { childList: true, subtree: true }, useShadowRoot = true) {
+        let root = null;
+        if (useShadowRoot) {
+            root = parentNode.shadowRoot || parentNode;
+        } else {
+            root = parentNode;
+        }
         const existingChildNodes = root.querySelectorAll(childNodeName);
         existingChildNodes.forEach(node => {
             callback(parentNode, node);
@@ -87,7 +94,34 @@
                 clearInterval(intervalId);
                 console.log("cib-chat-main found:", cib_chat_main);
                 addMutationObserver(cib_chat_main, "CIB-CHAT-TURN", recordChanges,
-                    (cib_chat_turn) => addMutationObserver(cib_chat_turn.shadowRoot, "CIB-MESSAGE-GROUP", recordChanges)
+                    (cib_chat_turn) => addMutationObserver(cib_chat_turn.shadowRoot, "CIB-MESSAGE-GROUP", recordChanges,
+                        (cib_message_group) => addMutationObserver(cib_message_group.shadowRoot, "CIB-MESSAGE", recordChanges,
+                            (cib_message) => {
+                                const type = cib_message.getAttribute('type');
+                                if (type === 'meta') {
+                                    addMutationObserver(cib_message.shadowRoot, "DIV", (parentNode, node) => {
+                                        if (node.classList.contains('meta-text')) {
+                                            recordChanges(parentNode, node);
+                                        }
+                                    }, null, { childList: true, subtree: true });
+                                } else if (type === 'text') {
+                                    const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+                                    if (cib_shared) {
+                                        addMutationObserver(cib_shared, "DIV", (parentNode, node) => {
+                                            if (node.classList.contains('content')) {
+                                                recordChanges(parentNode, node);
+                                            }
+                                        }, null, { childList: true, subtree: true }, useShadowRoot = false);
+                                    }
+                                } else if (type === 'host') {
+                                    const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+                                    if (cib_shared) {
+                                        addMutationObserver(cib_shared, "IFRAME", recordChanges, null, { childList: true, subtree: true }, useShadowRoot = false);
+                                    }
+                                }
+                            }
+                        )
+                    )
                 );
             }
         }, 1000);
