@@ -298,3 +298,64 @@ function recordChanges(nodeName, node) {
 ```   
 function addMutationObserver(observedNode, nodeName, callback, options = { childList: true, subtree: true })
 ```
+
+In TypeScript, How to pass some parameters by default when passing the callback function?
+Please explain with several code examples.
+
+
+I have two functions here, `addMutationObserver` is to add mutation observer to `parentNode`, while `monitorBingChat` is to monitor the changes of nodes in DOM.
+Now I want to use `addMutationObserver` for the `childNode` in the function ``addMutationObserver`, which might be something like:
+
+```
+addMutationObserver(cib_chat_main, "CIB-CHAT-TURN",
+    (addMutationObserver(cib_chat_turn, "CIB-MESSAGE-GROUP", recordChanges) => {
+        console.log("New cib-chat-turn node added:", node);
+    })
+)
+```
+
+Please implement this feature and improve for me.
+
+Below are my current codes for your information:
+
+```
+    function addMutationObserver(parentNode, childNodeName, callback, options = { childList: true, subtree: true }) {
+        const existingChildNodes = parentNode.querySelectorAll(childNodeName);
+        existingChildNodes.forEach(node => {
+            callback(parentNode, node);
+        });
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeName === nodeName) {
+                            callback(parentNode, node);
+                        }
+                    });
+                }
+            });
+        });
+        observer.observe(parentNode, options);
+    }
+
+    function monitorBingChat() {
+        let cib_chat_main = null;
+        const intervalId = setInterval(() => {
+            try {
+                cib_chat_main = document.querySelector(".cib-serp-main").shadowRoot.querySelector("#cib-conversation-main").shadowRoot.querySelector("#cib-chat-main");
+            } catch (error) {
+                // console.log("Bing Chat Not Found ...");
+            }
+
+            if (cib_chat_main) {
+                clearInterval(intervalId);
+                console.log("cib-chat-main found:", cib_chat_main);
+                addMutationObserver(cib_chat_main, "CIB-CHAT-TURN", recordChanges); // Improve Here
+            }
+        }, 1000);
+    }
+```
+
+Great! But I forget to tell you that, the "CIB-MESSAGE-GROUP" nodes are not directly under "CIB-CHAT-TURN" nodes, but under the `shadowRoot` of "CIB-CHAT-TURN" nodes.
+Please modify your codes to handle this case.

@@ -47,18 +47,25 @@
         console.log(`Child '${childNode.nodeName}':`, childNode);
     }
 
-    function addMutationObserver(parentNode, childNodeName, callback, options = { childList: true, subtree: true }) {
-        const existingChildNodes = parentNode.querySelectorAll(childNodeName);
+    function addMutationObserver(parentNode, childNodeName, callback, childCallback = null, options = { childList: true, subtree: true }) {
+        const root = parentNode.shadowRoot || parentNode;
+        const existingChildNodes = root.querySelectorAll(childNodeName);
         existingChildNodes.forEach(node => {
             callback(parentNode, node);
+            if (childCallback) {
+                childCallback(node);
+            }
         });
 
         const observer = new MutationObserver((mutations) => {
             mutations.forEach(mutation => {
                 if (mutation.type === 'childList') {
                     mutation.addedNodes.forEach(node => {
-                        if (node.nodeName === nodeName) {
+                        if (node.nodeName === childNodeName) {
                             callback(parentNode, node);
+                            if (childCallback) {
+                                childCallback(node);
+                            }
                         }
                     });
                 }
@@ -79,11 +86,12 @@
             if (cib_chat_main) {
                 clearInterval(intervalId);
                 console.log("cib-chat-main found:", cib_chat_main);
-                addMutationObserver(cib_chat_main, "CIB-CHAT-TURN", recordChanges);
+                addMutationObserver(cib_chat_main, "CIB-CHAT-TURN", recordChanges,
+                    (cib_chat_turn) => addMutationObserver(cib_chat_turn.shadowRoot, "CIB-MESSAGE-GROUP", recordChanges)
+                );
             }
         }, 1000);
     }
-
 
     window.addEventListener('load', () => {
         monitorBingChat();
