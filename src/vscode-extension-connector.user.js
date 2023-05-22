@@ -14,6 +14,43 @@
     const port = 54321;
     const ws_url = `ws://127.0.0.1:${port}/`;
 
+    function monitorBingChat() {
+        let targetNode = null;
+        const intervalId = setInterval(() => {
+            try {
+                targetNode = document.querySelector(".cib-serp-main").shadowRoot
+                    .querySelector("#cib-conversation-main").shadowRoot
+                    .querySelector("#cib-chat-main > cib-chat-turn").shadowRoot;
+                // console.log(`targetNode: ${targetNode}`);
+            } catch (error) {
+                // console.log("Bing Chat Not Found ...");
+            }
+
+            if (targetNode) {
+                console.log(`Bing Chat Found!`);
+                clearInterval(intervalId);
+                // Create an observer instance
+                const observer = new MutationObserver((mutationsList, observer) => {
+                    // Loop through the list of mutations
+                    for (const mutation of mutationsList) {
+                        // Check if nodes were added or removed
+                        if (mutation.addedNodes.length > 0) {
+                            console.log('Nodes added:', mutation.addedNodes);
+                        } else if (mutation.removedNodes.length > 0) {
+                            console.log('Nodes removed:', mutation.removedNodes);
+                        }
+                    }
+                });
+
+                // Options for the observer (which mutations to observe)
+                const config = { childList: true, subtree: true };
+
+                // Start observing the target node for configured mutations
+                observer.observe(targetNode, config);
+            }
+        }, 1000);
+    }
+
     function connect() {
         // WebSocket Client
         let ws = new WebSocket(ws_url);
@@ -40,5 +77,11 @@
     }
 
     connect();
+    window.addEventListener('load', () => {
+        monitorBingChat();
+    });
+
 })();
+
+
 

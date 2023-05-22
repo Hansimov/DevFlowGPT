@@ -27,7 +27,7 @@ export class WebSocketServer {
             this._clients.set(clientID, ws);
             this._latestClientID = clientID;
             this._clientOrder.push(clientID);
-            console.log(`√ [Server] Client connected. ID: ${clientID}`);
+            console.log(`√ [Server] Connect Client: ${clientID}`);
 
             ws.on('message', (message) => {
                 console.log('> [Server] [Received]:', message.toString());
@@ -40,7 +40,7 @@ export class WebSocketServer {
             });
 
             ws.on('close', () => {
-                console.log(`√ [Server] Client closed. ID: ${clientID}`);
+                console.log(`√ [Server] Close Client: ${clientID}`);
                 this._clients.delete(clientID);
             });
         });

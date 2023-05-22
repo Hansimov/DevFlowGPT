@@ -1,0 +1,77 @@
+In TamperMonkey script, how to get the current URL displayed in the browser?
+
+Great! Then in TamperMonkey script, how to get the webpage element updates in real time?
+For example, below is the HTML element from Bing AI chat, how to get the text content of the element in real time with stream mode?
+
+```
+<cib-message-group class="response-message-group" source="bot" serp-slot="none"></cib-message-group>
+```
+
+How to use js script to capture the webpage element updates?
+
+
+Suppose there is a Web page element which contains the chat turns from user and Bing AI Chat:  `<cib-chat-turn serp-slot="none"></cib-chat-turn>`.
+Then how to monitor and console.log the updates of the chat turns in real time with js script?
+
+
+How to use js script to monitor the realtime updates of a web element?
+
+
+Great! But the `targetNode` returns `null` when use querySelector.
+Please check until it is found? Below is the line need to improve.
+
+`const targetNode = document.querySelector('#cib-chat-main');`
+
+what is the difference of `setTimeout` and `setInterval` in js?
+
+
+Do following improvements to the function `monitorBingChat()`:
+[1] Use `setTimeout` instead of `setInterval()`.
+[2] The code `document.querySelector("#cib-chat-main")` cannot find the element, please use another method to select the element.
+
+Here is the js codes of function:
+
+```
+function monitorBingChat() {
+    let targetNode = null;
+    const intervalId = setInterval(() => {
+        targetNode = document.querySelector('#cib-chat-main');
+        console.log(`targetNode: ${targetNode}`);
+        if (targetNode) {
+            console.log(`Bing Chat Found!`);
+            clearInterval(intervalId);
+            // Create an observer instance
+            const observer = new MutationObserver((mutationsList, observer) => {
+                // Loop through the list of mutations
+                for (const mutation of mutationsList) {
+                    // Check if nodes were added or removed
+                    if (mutation.addedNodes.length > 0) {
+                        console.log('Nodes added:', mutation.addedNodes);
+                    } else if (mutation.removedNodes.length > 0) {
+                        console.log('Nodes removed:', mutation.removedNodes);
+                    }
+                }
+            });
+
+            // Options for the observer (which mutations to observe)
+            const config = { childList: true, subtree: true };
+
+            // Start observing the target node for configured mutations
+            observer.observe(targetNode, config);
+        }
+    }, 1000);
+}
+```
+
+Do following improvements for the function `monitorBingChat()`:
+[1] I think the `setInterval` method is better, please revert to the original version.
+[2] The `targetNode` still cannot be found, is it because the document is not ready or updated when the function `monitorBingChat` is called?
+
+Could you provide the events in a browser by execution time?
+
+Answer following questions:
+[1] Why `monitorBingChat()` is not executed when using `DOMContentLoaded` event listener, but executed when using `load` event listener?
+[2] Why the `#cib-chat-main` could not be found althought ?
+
+
+document.querySelector(".cib-serp-main").shadowRoot.querySelector("#cib-conversation-main").shadowRoot.querySelector("#cib-chat-main > cib-chat-turn").shadowRoot
