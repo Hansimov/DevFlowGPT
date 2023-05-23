@@ -1,0 +1,20 @@
+In TypeScript, what does the "mutation" means in `MutationObserver`?
+
+
+Can I return mutations from a function, so that it could be used later.
+
+Here is the scenario:
+[1] I first add a MutationObserver to a `parentNode`, observe any changes of its child nodes named "DIV".
+[2] Then a new `childNode1` is added to the `parentNode`. Now I would like to add new MutationObserver to `childNode1`, to observe the grandchild nodes, or child nodes of `childNode1`.
+How could I use MutationObserver to implement this.
+
+Your solution uses nested `MutationObserver`. This has a problem that if the level of node tree is too deep, the code will be too complex. Is there any other solution?
+
+Let me provide more details of my scenario. All this should be implemented in javascript.
+[1] I have a root node named `cib-chat-main`, and it would have multiple child nodes named `CIB-CHAT-TURN`, and each `cit-chat-turn` node would have multiple child nodes named `CIB-MESSAGE-GROUP`, and each `CIB-MESSAGE-GROUP` node would have multiple child nodes named `CIB-MESSAGE`, and for each `CI-MESSAGE` node, there are different types of its child nodes.
+[2] I would like to observe the changes of the `CIB-CHAT-TURN` nodes, and for each `CIB-CHAT-TURN` node, I would like to observe the changes of its `CIB-MESSAGE-GROUP` nodes, and for each `CIB-MESSAGE-GROUP` node, I would like to observe the changes of its `CIB-MESSAGE` nodes.
+[3] And then, for each child node of `CIB-MESSAGE`, I would like to monitor the content in character level, and output the updating content in real time in stream.
+
+
+If there are `shadowRoot` in the middle of each node and its child nodes, could your solution still work?
+
