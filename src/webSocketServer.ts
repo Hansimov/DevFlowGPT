@@ -10,7 +10,7 @@ import * as ws from 'ws';
 //   https://stackoverflow.com/questions/62273153/this-module-is-declared-with-using-export-and-can-only-be-used-with-a-defau
 
 export class WebSocketServer {
-    private _wss: ws.WebSocket.Server | undefined;
+    private _wss: any | undefined;
     private _port: number = 54321;
     private _url: string = `ws://localhost:${this._port}`;
     // private _clients: Set<ws> = new Set();
@@ -29,8 +29,11 @@ export class WebSocketServer {
             this._clientOrder.push(clientID);
             console.log(`√ [Server] Connect Client: ${clientID}`);
 
+            // ws.on('message', (message) => {
+            //     console.log('> [Server] [Received]:', message.toString());
+            // });
             ws.on('message', (message) => {
-                console.log('> [Server] [Received]:', message.toString());
+                process.stdout.write(message.toString());
             });
 
             ws.send('Hello from VSCode extension!');

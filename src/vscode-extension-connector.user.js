@@ -16,10 +16,11 @@
 (function () {
     const port = 54321;
     const ws_url = `ws://127.0.0.1:${port}/`;
+    let ws = null;
 
     function connect() {
         // WebSocket Client
-        let ws = new WebSocket(ws_url);
+        ws = new WebSocket(ws_url);
         let this_url = window.location.href;
 
         ws.addEventListener('open', function (event) {
@@ -49,37 +50,52 @@
         console.log(`'${childNode.nodeName}':`, childNode);
     }
 
-    function addMutationObserver(parentNode, childNodeName, callback, childCallback = null, options = { childList: true, subtree: true }, useShadowRoot = true) {
+    function addMutationObserver(parentNode, childNodeName, callback, childCallback = null, options = { childList: true, subtree: true }, useShadowRoot = true, isCharacterData = false) {
         let root = null;
         if (useShadowRoot) {
             root = parentNode.shadowRoot || parentNode;
         } else {
             root = parentNode;
         }
-        const existingChildNodes = root.querySelectorAll(childNodeName);
-        existingChildNodes.forEach(node => {
-            callback(parentNode, node);
-            if (childCallback) {
-                childCallback(node);
-            }
-        });
 
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach(mutation => {
-                if (mutation.type === 'childList') {
-                    mutation.addedNodes.forEach(node => {
-                        if (node.nodeName === childNodeName) {
-                            callback(parentNode, node);
-                            if (childCallback) {
-                                childCallback(node);
-                            }
-                        }
-                    });
+        let observer = null;
+        let target = null;
+        if (isCharacterData) {
+            options = { attributes: true, childList: false, characterData: true };
+            target = root.querySelector(".ac-textBlock");
+            observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    console.log(`mutation.type: ${mutation.type}`);
+                });
+            });
+        } else {
+            const existingChildNodes = root.querySelectorAll(childNodeName);
+            existingChildNodes.forEach(node => {
+                callback(parentNode, node);
+                if (childCallback) {
+                    childCallback(node);
                 }
             });
-        });
-        observer.observe(parentNode, options);
+            target = parentNode;
+            observer = new MutationObserver((mutations) => {
+                mutations.forEach(mutation => {
+                    console.log(`mutation.type: ${mutation.type}`);
+                    if (mutation.type === 'childList') {
+                        mutation.addedNodes.forEach(node => {
+                            if (node.nodeName === childNodeName) {
+                                callback(parentNode, node);
+                                if (childCallback) {
+                                    childCallback(node);
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+        }
+        observer.observe(target, options);
     }
+
 
     function monitorBingChat() {
         let cib_chat_main = null;
@@ -98,26 +114,34 @@
                         (cib_message_group) => addMutationObserver(cib_message_group.shadowRoot, "CIB-MESSAGE", recordChanges,
                             (cib_message) => {
                                 const type = cib_message.getAttribute('type');
+                                const role = cib_message.getAttribute('source');
+
+                                const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
                                 if (type === 'meta') {
                                     addMutationObserver(cib_message.shadowRoot, "DIV", (parentNode, node) => {
                                         if (node.classList.contains('meta-text')) {
                                             recordChanges(parentNode, node);
+                                            if (ws && ws.readyState === WebSocket.OPEN) {
+                                                ws.send(node.innerHTML);
+                                            }
                                         }
                                     }, null, { childList: true, subtree: true });
-                                } else if (type === 'text') {
-                                    const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
-                                    if (cib_shared) {
-                                        addMutationObserver(cib_shared, "DIV", (parentNode, node) => {
-                                            if (node.classList.contains('content')) {
-                                                recordChanges(parentNode, node);
-                                            }
-                                        }, null, { childList: true, subtree: true }, useShadowRoot = false);
-                                    }
-                                } else if (type === 'host') {
-                                    const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
-                                    if (cib_shared) {
-                                        addMutationObserver(cib_shared, "IFRAME", recordChanges, null, { childList: true, subtree: true }, useShadowRoot = false);
-                                    }
+                                } else if (type === 'text' && cib_shared) {
+                                    addMutationObserver(cib_shared, "DIV", (parentNode, node) => {
+                                        recordChanges(parentNode, node);
+                                        const ac_text_block = cib_shared.querySelector('.ac-textBlock');
+                                        if (ac_text_block) {
+                                            const oldContent = ac_text_block.getAttribute('data-old-content') || '';
+                                            const newContent = ac_text_block.innerHTML;
+                                            const updatedContent = newContent.slice(oldContent.length);
+                                            ws.send(updatedContent);
+                                            ac_text_block.setAttribute('data-old-content', newContent);
+                                        } else {
+                                            ws.send(node.innerHTML);
+                                        }
+                                    }, null, useShadowRoot = false, isCharacterData = true);
+                                } else if (type === 'host' && cib_shared) {
+                                    addMutationObserver(cib_shared, "IFRAME", recordChanges, null, { childList: true, subtree: true }, useShadowRoot = false);
                                 }
                             }
                         )

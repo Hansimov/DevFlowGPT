@@ -585,3 +585,468 @@ If the `type` attribute is `"text"`, we query for a `CIB-SHARED` element in the 
 If the type attribute is “host”, we query for a CIB-SHARED element in the shadowRoot of the newly added CIB-MESSAGE node and call addMutationObserver with its shadowRoot property as the parentNode, “IFRAME” as the childNodeName, and recordChanges as the callback. This will add a new mutation observer that monitors changes to IFRAME elements in the shadowRoot of the found CIB-SHARED element and calls the recordChanges function when a new IFRAME element is added.
 
 Let me know if this is what you were looking for or if you have any questions. 😊
+
+> Great! Now I use the below codes to process `cib_message`.
+> Please do following improvements for me:
+> [1] Since the content of the `DIV` under `cib_shared` is generated word by word, so you should also print content of the to the console in DevTools as stream in real time without line breaks.
+> [2] Refactor the codes to make it beautiful and well formatted.
+> 
+> ```
+> (cib_message) => {
+>     const type = cib_message.getAttribute('type');
+>     if (type === 'meta') {
+>         addMutationObserver(cib_message.shadowRoot, "DIV", (parentNode, node) => {
+>             if (node.classList.contains('meta-text')) {
+>                 recordChanges(parentNode, node);
+>             }
+>         }, null, { childList: true, subtree: true });
+>     } else if (type === 'text') {
+>         const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+>         if (cib_shared) {
+>             addMutationObserver(cib_shared, "DIV", (parentNode, node) => {
+>                 if (node.classList.contains('content')) {
+>                     recordChanges(parentNode, node);
+>                 }
+>             }, null, { childList: true, subtree: true }, useShadowRoot = false);
+>         }
+>     } else if (type === 'host') {
+>         const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+>         if (cib_shared) {
+>             addMutationObserver(cib_shared, "IFRAME", recordChanges, null, { childList: true, subtree: true }, useShadowRoot = false);
+>         }
+>     }
+> }
+> ```
+
+To print the content of the `DIV` element under `cib_shared` to the console in real-time without line breaks, you can modify the arrow function passed as the `callback` parameter when calling `addMutationObserver` with `"DIV"` as the `childNodeName` and `"text"` as the `type` attribute value. Here’s an example:
+
+    (cib_message) => {
+        const type = cib_message.getAttribute('type');
+        if (type === 'meta') {
+            addMutationObserver(cib_message.shadowRoot, "DIV", (parentNode, node) => {
+                if (node.classList.contains('meta-text')) {
+                    recordChanges(parentNode, node);
+                }
+            }, null, { childList: true, subtree: true });
+        } else if (type === 'text') {
+            const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+            if (cib_shared) {
+                addMutationObserver(cib_shared, "DIV", (parentNode, node) => {
+                    if (node.classList.contains('content')) {
+                        recordChanges(parentNode, node);
+                        console.log(node.textContent);
+                    }
+                }, null, { childList: true, subtree: true }, useShadowRoot = false);
+            }
+        } else if (type === 'host') {
+            const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+            if (cib_shared) {
+                addMutationObserver(cib_shared, "IFRAME", recordChanges, null, { childList: true, subtree: true }, useShadowRoot = false);
+            }
+        }
+    }
+    
+
+Copy
+
+In this version of the code, we added a `console.log` call to the arrow function passed as the `callback` parameter when calling `addMutationObserver` with `"DIV"` as the `childNodeName` and `"text"` as the `type` attribute value. This `console.log` call logs the `textContent` property of the added `DIV` element to the console in real-time without line breaks.
+
+Here’s a refactored version of the code that is more readable and well-formatted:
+
+    (cib_message) => {
+        const type = cib_message.getAttribute('type');
+        const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+    
+        if (type === 'meta') {
+            addMutationObserver(cib_message.shadowRoot, "DIV", (parentNode, node) => {
+                if (node.classList.contains('meta-text')) {
+                    recordChanges(parentNode, node);
+                }
+            }, null, { childList: true, subtree: true });
+        } else if (type === 'text' && cib_shared) {
+            addMutationObserver(cib_shared, "DIV", (parentNode, node) => {
+                if (node.classList.contains('content')) {
+                    recordChanges(parentNode, node);
+                    console.log(node.textContent);
+                }
+            }, null, { childList: true, subtree: true }, useShadowRoot = false);
+        } else if (type === 'host' && cib_shared) {
+            addMutationObserver(cib_shared, "IFRAME", recordChanges, null, { childList: true, subtree: true }, useShadowRoot = false);
+        }
+    }
+    
+
+Copy
+
+In this version of the code, we moved the query for the `CIB-SHARED` element to the top of the arrow function and added additional checks to ensure that it exists before calling `addMutationObserver`. This makes the code more readable and easier to understand.
+
+Let me know if this is what you were looking for or if you have any questions. 😊
+
+> No, You should make the output of console in stream, not line by line.
+
+If you want to print the content of the `DIV` element under `cib_shared` to the console as a stream without line breaks, you can use the `process.stdout.write` method instead of `console.log`. Here’s an example:
+
+    (cib_message) => {
+        const type = cib_message.getAttribute('type');
+        const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+    
+        if (type === 'meta') {
+            addMutationObserver(cib_message.shadowRoot, "DIV", (parentNode, node) => {
+                if (node.classList.contains('meta-text')) {
+                    recordChanges(parentNode, node);
+                }
+            }, null, { childList: true, subtree: true });
+        } else if (type === 'text' && cib_shared) {
+            addMutationObserver(cib_shared, "DIV", (parentNode, node) => {
+                if (node.classList.contains('content')) {
+                    recordChanges(parentNode, node);
+                    process.stdout.write(node.textContent);
+                }
+            }, null, { childList: true, subtree: true }, useShadowRoot = false);
+        } else if (type === 'host' && cib_shared) {
+            addMutationObserver(cib_shared, "IFRAME", recordChanges, null, { childList: true, subtree: true }, useShadowRoot = false);
+        }
+    }
+    
+
+Copy
+
+In this version of the code, we replaced the `console.log` call with a `process.stdout.write` call in the arrow function passed as the `callback` parameter when calling `addMutationObserver` with `"DIV"` as the `childNodeName` and `"text"` as the `type` attribute value. This `process.stdout.write` call writes the `textContent` property of the added `DIV` element to the console as a stream without line breaks.
+
+Note that the `process.stdout.write` method is only available in Node.js environments and will not work in a browser. If you’re running this code in a browser environment, you can use a custom logging function that appends text to a DOM element instead of writing it to the console. Here’s an example:
+
+    function logToElement(elementId: string, text: string) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent += text;
+        }
+    }
+    
+    (cib_message) => {
+        const type = cib_message.getAttribute('type');
+        const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+    
+        if (type === 'meta') {
+            addMutationObserver(cib_message.shadowRoot, "DIV", (parentNode, node) => {
+                if (node.classList.contains('meta-text')) {
+                    recordChanges(parentNode, node);
+                }
+            }, null, { childList: true, subtree: true });
+        } else if (type === 'text' && cib_shared) {
+            addMutationObserver(cib_shared, "DIV", (parentNode, node) => {
+                if (node.classList.contains('content')) {
+                    recordChanges(parentNode, node);
+                    logToElement('myLogElement', node.textContent);
+                }
+            }, null, { childList: true, subtree: true }, useShadowRoot = false);
+        } else if (type === 'host' && cib_shared) {
+            addMutationObserver(cib_shared, "IFRAME", recordChanges, null, { childList: true, subtree: true }, useShadowRoot = false);
+        }
+    }
+    
+
+Copy
+
+In this version of the code, we defined a `logToElement` function that takes an element ID and some text as arguments and appends the text to the content of the element with the specified ID. We replaced the `process.stdout.write` call with a call to this function in the arrow function passed as the `callback` parameter when calling `addMutationObserver` with `"DIV"` as the `childNodeName` and `"text"` as the `type` attribute value. This will append the `textContent` property of the added `DIV` element to the content of the specified DOM element in real-time without line breaks.
+
+Let me know if this is what you were looking for or if you have any questions. 😊
+
+> Let me provide you more knowledge to help you solve the problem in a better way.
+> [1] In Node.js, the function `process.stdout.write()` could output continuously.
+> [2] You can use websocket client to send the updating content from browser to websocket server, and here is my websocket script:
+> [3] You can then work in this way: 1st, keep monitoring the changing text contents of the "DIV"; 2nd, keep sending these changes in stream via websocket to remote server; 3rd, in remote server, use Node.js to print the streaming text contents.
+> [4] Also, you could try `websocket-stream` to improve the following codes that I have implemented for websocket:
+> 
+> ```
+>     const port = 54321;
+>     const ws_url = `ws://127.0.0.1:${port}/`;
+> 
+>     function connect() {
+>         // WebSocket Client
+>         let ws = new WebSocket(ws_url);
+>         let this_url = window.location.href;
+> 
+>         ws.addEventListener('open', function (event) {
+>             console.log(`√ [Connected server]: ${ws_url}`);
+>             ws.send(`Hello from TM: ${this_url}`);
+>         });
+> 
+>         ws.addEventListener('message', function (event) {
+>             console.log('> [Client] [Received]:', event.data);
+>         });
+> 
+>         ws.addEventListener('error', function (event) {
+>             console.log('× [Client] [Error]:', event);
+>         });
+> 
+>         ws.addEventListener('close', function (event) {
+>             console.log(`√ [Client]: Server closed.`);
+>             ws.send(`√ [Closed Client]: ${this_url}`);
+>             setTimeout(connect, 1000);
+>         });
+>     }
+> 
+>     connect();
+> ```
+
+If you want to send the changing text content of the `DIV` element under `cib_shared` to a remote server using a WebSocket connection and print it as a stream using Node.js, you can modify the arrow function passed as the `callback` parameter when calling `addMutationObserver` with `"DIV"` as the `childNodeName` and `"text"` as the `type` attribute value. Here’s an example:
+
+    const port = 54321;
+    const ws_url = `ws://127.0.0.1:${port}/`;
+    let ws = null;
+    
+    function connect() {
+        ws = new WebSocket(ws_url);
+        let this_url = window.location.href;
+    
+        ws.addEventListener('open', function (event) {
+            console.log(`√ [Connected server]: ${ws_url}`);
+            ws.send(`Hello from TM: ${this_url}`);
+        });
+    
+        ws.addEventListener('message', function (event) {
+            console.log('> [Client] [Received]:', event.data);
+        });
+    
+        ws.addEventListener('error', function (event) {
+            console.log('× [Client] [Error]:', event);
+        });
+    
+        ws.addEventListener('close', function (event) {
+            console.log(`√ [Client]: Server closed.`);
+            ws.send(`√ [Closed Client]: ${this_url}`);
+            setTimeout(connect, 1000);
+        });
+    }
+    
+    connect();
+    
+    (cib_message) => {
+        const type = cib_message.getAttribute('type');
+        const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+    
+        if (type === 'meta') {
+            addMutationObserver(cib_message.shadowRoot, "DIV", (parentNode, node) => {
+                if (node.classList.contains('meta-text')) {
+                    recordChanges(parentNode, node);
+                }
+            }, null, { childList: true, subtree: true });
+        } else if (type === 'text' && cib_shared) {
+            addMutationObserver(cib_shared, "DIV", (parentNode, node) => {
+                if (node.classList.contains('content')) {
+                    recordChanges(parentNode, node);
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        ws.send(node.textContent);
+                    }
+                }
+            }, null, { childList: true, subtree: true }, useShadowRoot = false);
+        } else if (type === 'host' && cib_shared) {
+            addMutationObserver(cib_shared, "IFRAME", recordChanges, null, { childList: true, subtree: true }, useShadowRoot = false);
+        }
+    }
+    
+
+Copy
+
+In this version of the code, we added a WebSocket client that connects to a remote server and sends messages when the connection is open. We also modified the arrow function passed as the `callback` parameter when calling `addMutationObserver` with `"DIV"` as the `childNodeName` and `"text"` as the `type` attribute value to send the `textContent` property of the added `DIV` element to the remote server using the WebSocket connection.
+
+On the remote server, you can use Node.js to receive messages from the WebSocket client and print them to the console as a stream using the `process.stdout.write` method. Here’s an example:
+
+    const WebSocket = require('ws');
+    const wss = new WebSocket.Server({ port: 54321 });
+    
+    wss.on('connection', function connection(ws) {
+        console.log(`√ [Server]: Client connected.`);
+    
+        ws.on('message', function incoming(message) {
+            console.log('> [Server] [Received]:', message);
+            process.stdout.write(message);
+        });
+    
+        ws.on('close', function close() {
+            console.log(`√ [Server]: Client disconnected.`);
+        });
+    });
+    
+
+Copy
+
+In this example, we create a WebSocket server using the `ws` package and listen for incoming connections. When a client connects to the server, we log a message to the console and listen for incoming messages from the client. When a message is received from the client, we log it to the console and write its content to the standard output stream using the `process.stdout.write` method.
+
+This will allow you to print the changing text content of the `DIV` element under `cib_shared` to the console on a remote server as a stream without line breaks.
+
+Let me know if this is what you were looking for or if you have any questions. 😊
+
+> Here is my latest codes for processing `cib_message`:
+> 
+> ```
+> (cib_message) => {
+>     const type = cib_message.getAttribute('type');
+>     const role = cib_message.getAttribute('source');
+> 
+>     const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+> 
+>     if (type === 'meta') {
+>         addMutationObserver(cib_message.shadowRoot, "DIV", (parentNode, node) => {
+>             if (node.classList.contains('meta-text')) {
+>                 recordChanges(parentNode, node);
+>                 if (ws && ws.readyState === WebSocket.OPEN) {
+>                     ws.send(node.innerHTML);
+>                 }
+>             }
+>         }, null, { childList: true, subtree: true });
+>     } else if (type === 'text' && cib_shared) {
+>         let childNodeName = null;
+>         if (role === "user") {
+>             childNodeName = "DIV";
+>         } else {
+>             childNodeName = ".ac-textBlock";
+>         }
+>         addMutationObserver(cib_shared, childNodeName, (parentNode, node) => {
+>             recordChanges(parentNode, node);
+>             if (ws && ws.readyState === WebSocket.OPEN) {
+>                 ws.send(node.innerHTML);
+>             }
+>         }, null, { childList: true, subtree: true, characterDataOldValue: true, characterData: true }, useShadowRoot = false);
+>     } else if (type === 'host' && cib_shared) {
+>         addMutationObserver(cib_shared, "IFRAME", recordChanges, null, { childList: true, subtree: true }, useShadowRoot = false);
+>     }
+> }
+> ```
+> 
+> Then You need to implement this feature:
+> Send stream message when monitoring the content updates of element `.ac-textBlock`.
+> For example, when the content of `.ac-textBlock` is `hello`, you should send `hello`, then when the content of `.ac-textBlock` is updated to `hello world`, you should send ` world`, not `hello world`.
+
+If you want to send only the updated content of the `.ac-textBlock` element to the remote server using a WebSocket connection, you can modify the arrow function passed as the `callback` parameter when calling `addMutationObserver` with `".ac-textBlock"` as the `childNodeName`. Here’s an example:
+
+    (cib_message) => {
+        const type = cib_message.getAttribute('type');
+        const role = cib_message.getAttribute('source');
+    
+        const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+    
+        if (type === 'meta') {
+            addMutationObserver(cib_message.shadowRoot, "DIV", (parentNode, node) => {
+                if (node.classList.contains('meta-text')) {
+                    recordChanges(parentNode, node);
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        ws.send(node.innerHTML);
+                    }
+                }
+            }, null, { childList: true, subtree: true });
+        } else if (type === 'text' && cib_shared) {
+            let childNodeName = null;
+            if (role === "user") {
+                childNodeName = "DIV";
+            } else {
+                childNodeName = ".ac-textBlock";
+            }
+            addMutationObserver(cib_shared, childNodeName, (parentNode, node) => {
+                recordChanges(parentNode, node);
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    if (node.classList.contains('ac-textBlock')) {
+                        const oldContent = node.getAttribute('data-old-content') || '';
+                        const newContent = node.innerHTML;
+                        const updatedContent = newContent.slice(oldContent.length);
+                        ws.send(updatedContent);
+                        node.setAttribute('data-old-content', newContent);
+                    } else {
+                        ws.send(node.innerHTML);
+                    }
+                }
+            }, null, { childList: true, subtree: true, characterDataOldValue: true, characterData: true }, useShadowRoot = false);
+        } else if (type === 'host' && cib_shared) {
+            addMutationObserver(cib_shared, "IFRAME", recordChanges, null, { childList: true, subtree: true }, useShadowRoot = false);
+        }
+    }
+    
+
+Copy
+
+In this version of the code, we modified the arrow function passed as the `callback` parameter when calling `addMutationObserver` with `".ac-textBlock"` as the `childNodeName`. This arrow function checks if the added node has a class name of `"ac-textBlock"` and calculates the updated content by comparing its current `innerHTML` property with its previous value stored in a custom `data-old-content` attribute. It then sends only the updated content to the remote server using the WebSocket connection and updates the value of the `data-old-content` attribute with the new content.
+
+This will allow you to send only the updated content of the `.ac-textBlock` element to the remote server as a stream without sending duplicate data.
+
+Let me know if this is what you were looking for or if you have any questions. 😊
+
+> Here is the codes for add MutationObserver to parentNode which monitor changes of its child nodes.
+> Please improve it so that it not just check `if (mutation.type === 'childList')`,
+> but to check nodes which could be `querySelectorAll` by the `childNodeName`.
+> 
+> ```
+>     function addMutationObserver(parentNode, childNodeName, callback, childCallback = null, options = { childList: true, subtree: true }, useShadowRoot = true) {
+>         let root = null;
+>         if (useShadowRoot) {
+>             root = parentNode.shadowRoot || parentNode;
+>         } else {
+>             root = parentNode;
+>         }
+>         const existingChildNodes = root.querySelectorAll(childNodeName);
+>         existingChildNodes.forEach(node => {
+>             callback(parentNode, node);
+>             if (childCallback) {
+>                 childCallback(node);
+>             }
+>         });
+> 
+>         const observer = new MutationObserver((mutations) => {
+>             mutations.forEach(mutation => {
+>                 if (mutation.type === 'childList') {
+>                     mutation.addedNodes.forEach(node => {
+>                         if (node.nodeName === childNodeName) {
+>                             callback(parentNode, node);
+>                             if (childCallback) {
+>                                 childCallback(node);
+>                             }
+>                         }
+>                     });
+>                 }
+>             });
+>         });
+>         observer.observe(parentNode, options);
+>     }
+> ```
+
+If you want to modify the `addMutationObserver` function to check for added nodes that can be selected using the `childNodeName` parameter instead of checking their `nodeName` property, you can use the `matches` method to check if the added node matches the `childNodeName` selector. Here’s an example:
+
+    function addMutationObserver(parentNode, childNodeName, callback, childCallback = null, options = { childList: true, subtree: true }, useShadowRoot = true) {
+        let root = null;
+        if (useShadowRoot) {
+            root = parentNode.shadowRoot || parentNode;
+        } else {
+            root = parentNode;
+        }
+        const existingChildNodes = root.querySelectorAll(childNodeName);
+        existingChildNodes.forEach(node => {
+            callback(parentNode, node);
+            if (childCallback) {
+                childCallback(node);
+            }
+        });
+    
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeType === Node.ELEMENT_NODE && node.matches(childNodeName)) {
+                            callback(parentNode, node);
+                            if (childCallback) {
+                                childCallback(node);
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        observer.observe(parentNode, options);
+    }
+    
+
+Copy
+
+In this version of the code, we modified the arrow function passed to the `MutationObserver` constructor to check if the added node is an element node and if it matches the `childNodeName` selector using the `matches` method. If both conditions are true, we call the `callback` and `childCallback` functions with the added node as an argument.
+
+This will allow you to use any valid CSS selector as the `childNodeName` parameter when calling the `addMutationObserver` function and monitor changes to nodes that match this selector.
+
+Let me know if this is what you were looking for or if you have any questions. 😊

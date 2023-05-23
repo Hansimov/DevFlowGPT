@@ -384,3 +384,168 @@ The `type` of "cib-message" nodes could be "meta", "text" and "host", for each s
 [1] If type is "meta", we need to observe child div with classname "meta-text", and ignore other divs.
 [2] If type is "text", we need to observe the div with class "content" under the node named "cib-shared", and ignore other divs.
 [3] If type is "host", we need to observe the "iframe" element under the node named "cib-shared".
+
+
+Great! Now I use the below codes to process `cib_message`.
+Please do following improvements for me:
+[1] Since the content of the `DIV` under `cib_shared` is generated word by word, so you should also print content of the to the console in DevTools as stream in real time without line breaks.
+[2] Refactor the codes to make it beautiful and well formatted.
+
+```
+(cib_message) => {
+    const type = cib_message.getAttribute('type');
+    if (type === 'meta') {
+        addMutationObserver(cib_message.shadowRoot, "DIV", (parentNode, node) => {
+            if (node.classList.contains('meta-text')) {
+                recordChanges(parentNode, node);
+            }
+        }, null, { childList: true, subtree: true });
+    } else if (type === 'text') {
+        const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+        if (cib_shared) {
+            addMutationObserver(cib_shared, "DIV", (parentNode, node) => {
+                if (node.classList.contains('content')) {
+                    recordChanges(parentNode, node);
+                }
+            }, null, { childList: true, subtree: true }, useShadowRoot = false);
+        }
+    } else if (type === 'host') {
+        const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+        if (cib_shared) {
+            addMutationObserver(cib_shared, "IFRAME", recordChanges, null, { childList: true, subtree: true }, useShadowRoot = false);
+        }
+    }
+}
+```
+
+No, You should make the output of console in stream, not line by line.
+
+Let me provide you more knowledge to help you solve the problem in a better way.
+[1] In Node.js, the function `process.stdout.write()` could output continuously.
+[2] You can use websocket client to send the updating content from browser to websocket server, and here is my websocket script:
+[3] You can then work in this way: 1st, keep monitoring the changing text contents of the "DIV"; 2nd, keep sending these changes in stream via websocket to remote server; 3rd, in remote server, use Node.js to print the streaming text contents.
+[4] Also, you could try `websocket-stream` to improve the following codes that I have implemented for websocket:
+
+```
+    const port = 54321;
+    const ws_url = `ws://127.0.0.1:${port}/`;
+
+    function connect() {
+        // WebSocket Client
+        let ws = new WebSocket(ws_url);
+        let this_url = window.location.href;
+
+        ws.addEventListener('open', function (event) {
+            console.log(`√ [Connected server]: ${ws_url}`);
+            ws.send(`Hello from TM: ${this_url}`);
+        });
+
+        ws.addEventListener('message', function (event) {
+            console.log('> [Client] [Received]:', event.data);
+        });
+
+        ws.addEventListener('error', function (event) {
+            console.log('× [Client] [Error]:', event);
+        });
+
+        ws.addEventListener('close', function (event) {
+            console.log(`√ [Client]: Server closed.`);
+            ws.send(`√ [Closed Client]: ${this_url}`);
+            setTimeout(connect, 1000);
+        });
+    }
+
+    connect();
+```
+
+
+Here is my latest codes for processing `cib_message`:
+
+```
+(cib_message) => {
+    const type = cib_message.getAttribute('type');
+    const role = cib_message.getAttribute('source');
+
+    const cib_shared = cib_message.shadowRoot.querySelector('CIB-SHARED');
+
+    if (type === 'meta') {
+        addMutationObserver(cib_message.shadowRoot, "DIV", (parentNode, node) => {
+            if (node.classList.contains('meta-text')) {
+                recordChanges(parentNode, node);
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(node.innerHTML);
+                }
+            }
+        }, null, { childList: true, subtree: true });
+    } else if (type === 'text' && cib_shared) {
+        let childNodeName = null;
+        if (role === "user") {
+            childNodeName = "DIV";
+        } else {
+            childNodeName = ".ac-textBlock";
+        }
+        addMutationObserver(cib_shared, childNodeName, (parentNode, node) => {
+            recordChanges(parentNode, node);
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(node.innerHTML);
+            }
+        }, null, { childList: true, subtree: true, characterDataOldValue: true, characterData: true }, useShadowRoot = false);
+    } else if (type === 'host' && cib_shared) {
+        addMutationObserver(cib_shared, "IFRAME", recordChanges, null, { childList: true, subtree: true }, useShadowRoot = false);
+    }
+}
+```
+
+Then You need to implement this feature:
+Send stream message when monitoring the content updates of element `.ac-textBlock`.
+For example, when the content of `.ac-textBlock` is `hello`, you should send `hello`, then when the content of `.ac-textBlock` is updated to `hello world`, you should send ` world`, not `hello world`.
+
+
+Here is the codes for add MutationObserver to parentNode which monitor changes of its child nodes.
+Please improve it so that it not just check `if (mutation.type === 'childList')`,
+but to check nodes which could be `querySelectorAll` by the `childNodeName`.
+
+```
+    function addMutationObserver(parentNode, childNodeName, callback, childCallback = null, options = { childList: true, subtree: true }, useShadowRoot = true) {
+        let root = null;
+        if (useShadowRoot) {
+            root = parentNode.shadowRoot || parentNode;
+        } else {
+            root = parentNode;
+        }
+        const existingChildNodes = root.querySelectorAll(childNodeName);
+        existingChildNodes.forEach(node => {
+            callback(parentNode, node);
+            if (childCallback) {
+                childCallback(node);
+            }
+        });
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeName === childNodeName) {
+                            callback(parentNode, node);
+                            if (childCallback) {
+                                childCallback(node);
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        observer.observe(parentNode, options);
+    }
+```
+
+
+
+today's weather of Beijing
+today's weather of Shanghai
+
+
+cib_shared = document.querySelector(".cib-serp-main").shadowRoot.querySelector("#cib-conversation-main").shadowRoot.querySelector("#cib-chat-main").querySelectorAll("cib-chat-turn")[0].shadowRoot.querySelectorAll("cib-message-group")[1].shadowRoot.querySelectorAll("cib-message")[2].shadowRoot.querySelector("cib-shared");
+
+cib_shared.querySelectorAll(".ac-textBlock")
+
