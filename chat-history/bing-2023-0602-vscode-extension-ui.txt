@@ -1,0 +1,49 @@
+I am developing a vscode extension, which is a customized editor that can generate prompts for ChatGPT and Bing more quickly.
+The editor should have the following features:
+(1) Inherit the features of original vscode editor, which means in this customized editor, I can still use keyboard shortcuts, auto completion and quick fixes as usual.
+(2) Has a menu, which can select built-in predefined prompt templates, and capable to search the prompts with tag or text match.
+(3) Record recent prompts, and can edit old prompts for re-use.
+(4) Visualize prompts as Drag-and-drop modules.
+
+Please do following steps:
+[1] Provide some suggestions based on the features above.
+[2] Provide possible solution for each feature above.
+[3] Provide the codes to implement the customized editor which support these features.
+
+Here is my existing file of `extension.ts` in developing the :
+
+```
+import * as vscode from 'vscode';
+import { handleBrowserMessage } from './messageHandler';
+
+export function activate(context: vscode.ExtensionContext) {
+    // Register command: "devflowgpt.sendMessage"
+    let sendMessageDisposable = vscode.commands.registerCommand('devflowgpt.sendMessage', async () => {
+        const message = await vscode.window.showInputBox({ prompt: 'Enter the message to send' });
+        handleMessage(message);
+    });
+    context.subscriptions.push(sendMessageDisposable);
+}
+
+// Handle incoming messages from Chrome Browser
+export function handleMessage(message: string | undefined) {
+    // TODO: Implement the logic to handle incoming messages from Chrome Browser
+    handleBrowserMessage(message);
+    console.log(`After handling ${message} ...`);
+}
+```
+
+
+Great! Let's start from improving the solutions of implementing the UI of the customized editor.
+I have two solutions below:
+[1] Do not make it a separated editor, but design it as an hovered menu, which has a menu with buttons to search prompts, select prompt templates and edit recent prompts for re-use.
+[2] Make it something like webview panel, and visualize the prompts in a format of drag&drop block, after finishing editing, can convert the prompt blocks to texts, and copy it and paste to other places.
+
+You should do following steps:
+[1] Provide a new solution apart from the two solutions above.
+[2] Design several aspects related to the usability of the vscode extension, such as flexibility of editing, scalability when there are a lot of prompts in the future. Note that the aspects you design, should not be limited to the example aspects I provide you.
+[3] Compare the three solutions (two of mine, and one of yours) based on the aspects you designed. You should output your answer in a table format.
+[4] Suggest the best solution based on the analysis in step 3.
+[5] Provide next steps after choosing the best solution. 
+
+
