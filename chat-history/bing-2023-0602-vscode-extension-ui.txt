@@ -66,3 +66,17 @@ Great! Then let me repeat the features that the extension should support:
 
 Please choose the side panel solution to start our work.
 Then 1st analyze the feasibility each feature, 2rd provide useful functions and attributes to implement each.
+
+
+I am developing a vscode extension, which is a customized editor that can generate prompts for ChatGPT and Bing more quickly.
+The editor should have the following features:
+(1) Inherit the features of normal vscode editor, which means in this customized editor, I can still use keyboard shortcuts, auto completion and quick fixes as usual, and can use the functionalities of other vscode extensions.
+(2) Has a menu, which can select built-in predefined prompt templates, and capable to search the prompts with tag or text match.
+(3) Record recent prompts, and can edit old prompts for re-use.
+(4) Visualize prompts as Drag-and-drop modules.
+
+I have determined to use side panel to implement this vscode extension.
+
+Then answer the following questions one by one:
+[1] Is it possible for the editor part in the side panel to inherit all features of the normal vscode editor, which might integrated many functionalities of other vscode extensions?
+[2] What are some best practices to implement drag-and-drop feature in the webview panel in a side panel?

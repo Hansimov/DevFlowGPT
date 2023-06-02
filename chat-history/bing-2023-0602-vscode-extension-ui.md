@@ -244,3 +244,7 @@ Sure! Here is an analysis of the feasibility of each feature and some useful fun
     
 
 I hope this helps! Is there anything else I can help with? 😊
+
+> Great! Then answer following questions one by one:
+> [1] Is it possible for the editor part in the side panel to inherit all features of the normal vscode editor, which might integrated many functionalities of other vscode extensions?
+> [2] What are some best practices to implement drag-and-drop feature in the webview panel in a side panel?
