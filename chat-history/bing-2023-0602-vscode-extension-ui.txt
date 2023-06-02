@@ -47,3 +47,22 @@ You should do following steps:
 [5] Provide next steps after choosing the best solution. 
 
 
+Great! Then do following steps:
+[1] Provide another two solutions apart from the three above.
+[2] Compare all the three solutions you provide based on the aspects you designed. You should output your answer in a table format.
+[3] Re-Suggest the best solution based on the analysis in step 3.
+[4] Provide next steps after choosing the best solution.
+
+Great! Then do following steps:
+[1] List powerful features of side panel as vscode extension, the features are related to our task.
+[2] List some BKMs to design awesome UI for a vscode extension.
+
+
+Great! Then let me repeat the features that the extension should support:
+(1) Inherit the features of original vscode editor, which means in this customized editor, I can still use keyboard shortcuts, auto completion and quick fixes as usual.
+(2) Has a menu, which can select built-in predefined prompt templates, and capable to search the prompts with tag or text match.
+(3) Record recent prompts, and can edit old prompts for re-use.
+(4) Visualize prompts as Drag-and-drop modules.
+
+Please choose the side panel solution to start our work.
+Then 1st analyze the feasibility each feature, 2rd provide useful functions and attributes to implement each.
