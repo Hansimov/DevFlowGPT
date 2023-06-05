@@ -22,7 +22,7 @@ export class WebSocketServer {
     public start() {
         this._wss = new ws.WebSocket.Server({ port: this._port });
 
-        this._wss.on('connection', (ws) => {
+        this._wss.on('connection', (ws: ws) => {
             const clientID = (this._clientIDCounter++).toString();
             this._clients.set(clientID, ws);
             this._latestClientID = clientID;
